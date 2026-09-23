@@ -1,0 +1,41 @@
+Teste GPT (llm-gate) — rodar na maquina/rede da Localiza
+========================================================
+
+O que levar para la (so estes 2 arquivos, na mesma pasta):
+  - teste_gpt.py
+  - amostra_5.json   (tem transcricao — nao mandar por e-mail externo nem subir no git)
+
+Pre-requisitos:
+  - Python 3 com "requests" (pip install requests)
+  - A chave do llm-gate na variavel API_KEY:
+      PowerShell:  $env:API_KEY = "sua_chave"
+      cmd:         set API_KEY=sua_chave
+    (Se rodar de dentro do projeto do time, onde existe src.settings com
+     get_llm_url/get_llm_headers, o script usa isso automaticamente.)
+
+Passo a passo (na pasta dos arquivos):
+
+  1) python teste_gpt.py modelos
+     Lista quais modelos o llm-gate aceita. Gera modelos_disponiveis.json.
+
+  2) python teste_gpt.py rodar
+     Roda as configuracoes C0..C4 (+ C5 em diante para cada modelo mais
+     barato encontrado no passo 1) nas 5 ligacoes. Poucos minutos; o
+     terminal mostra tokens de cada pedido. Se cair no meio, rode de novo:
+     ele continua de onde parou.
+
+  3) python teste_gpt.py comparar
+     Mostra a tabela de tokens/custo/concordancia com o Gemini e aponta a
+     configuracao mais barata que empata ou supera o C0 (gpt-4o, como o
+     time usa hoje).
+
+O que trazer de volta (nenhum tem transcricao):
+  modelos_disponiveis.json, relatorio.csv, relatorio_detalhe.csv
+
+Configuracoes testadas:
+  C0  gpt-4o      4 pedidos/ligacao, transcricao bruta   (como o time faz hoje)
+  C1  gpt-4o-mini 4 pedidos/ligacao, transcricao bruta
+  C2  gpt-4o-mini 4 pedidos/ligacao, transcricao compacta
+  C3  gpt-4o-mini 1 pedido/ligacao,  transcricao compacta, saida so com codigos
+  C4  gpt-4o      1 pedido/ligacao,  transcricao compacta, saida so com codigos
+  C5+ modelos extras (4.1-nano/mini, 5-nano/mini) no formato do C3, se disponiveis
