@@ -1,0 +1,286 @@
+<title>Funil de Ligações Agosto</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --paper:#F6F5F1; --paper-raised:#FFFFFF;
+    --ink:#1C1C1A; --ink-2:#46443E; --ink-3:#807D73;
+    --line:#D8D5CB; --line-2:#C3BFB2;
+    --flag:#8B2E2E; --flag-wash:#F1E1DE;
+    --s-venda:#2a78d6; --s-nv:#1baf7a; --s-prob:#eb6834;
+    --s-empty:#C9C5B9; --s-none:#E4E1D8; --s-all:#3A3833; --s-conv:#6B675C;
+    --shadow:0 1px 2px rgb(28 28 26 / .05), 0 8px 22px -12px rgb(28 28 26 / .16);
+    --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --serif:"Source Serif 4",Georgia,serif;
+    --mono:"IBM Plex Mono","SF Mono",Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --paper:#171613; --paper-raised:#201F1B; --ink:#EDEBE4; --ink-2:#C2BFB4; --ink-3:#8A867A;
+      --line:#37352C; --line-2:#464338; --flag:#D97E7E; --flag-wash:#332120;
+      --s-venda:#3987e5; --s-nv:#199e70; --s-prob:#d95926; --s-empty:#4A473E; --s-none:#34322B; --s-all:#55524A; --s-conv:#6B675C;
+      --shadow:0 1px 2px rgb(0 0 0 / .35), 0 10px 30px -10px rgb(0 0 0 / .55);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --paper:#171613; --paper-raised:#201F1B; --ink:#EDEBE4; --ink-2:#C2BFB4; --ink-3:#8A867A;
+    --line:#37352C; --line-2:#464338; --flag:#D97E7E; --flag-wash:#332120;
+    --s-venda:#3987e5; --s-nv:#199e70; --s-prob:#d95926; --s-empty:#4A473E; --s-none:#34322B; --s-all:#55524A; --s-conv:#6B675C;
+    --shadow:0 1px 2px rgb(0 0 0 / .35), 0 10px 30px -10px rgb(0 0 0 / .55);
+  }
+
+  *{box-sizing:border-box;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);padding-inline:16px;padding-block:24px;}
+  .page{max-width:860px;margin:0 auto;padding:56px 36px 90px;background:var(--paper-raised);box-shadow:var(--shadow);border-radius:2px;}
+  @media (max-width:760px){.page{padding:32px 18px 64px;} body{padding-inline:0;padding-block:0;}}
+
+  .masthead{font-family:var(--sans);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:22px;}
+  h1{font-weight:700;font-size:1.6rem;margin:0 0 10px;line-height:1.25;text-wrap:balance;}
+  .lede{font-size:1.04rem;line-height:1.7;color:var(--ink-2);margin:0 0 8px;max-width:64ch;}
+
+  h2{font-family:var(--sans);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:44px 0 14px;display:flex;align-items:baseline;gap:10px;}
+  h2 .num{font-family:var(--mono);color:var(--ink);font-size:.82rem;}
+  h2::after{content:"";flex:1;height:1px;background:var(--line);}
+  p{line-height:1.7;font-size:1rem;margin:0 0 14px;max-width:68ch;}
+  p.small{font-size:.86rem;color:var(--ink-2);font-family:var(--sans);}
+  em.num{font-style:normal;font-family:var(--mono);font-weight:600;}
+  strong{font-weight:600;}
+
+  /* icicle funnel */
+  .icicle{font-family:var(--sans);display:flex;flex-direction:column;gap:10px;margin:18px 0 6px;}
+  .lvl{display:flex;flex-direction:column;gap:4px;}
+  .lvl-name{font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600;}
+  .row{display:flex;gap:2px;height:62px;}
+  .seg{position:relative;border-radius:3px;padding:8px 9px;overflow:hidden;color:#fff;cursor:default;outline-offset:2px;}
+  .seg:focus-visible{outline:2px solid var(--ink);}
+  .seg .t{font-size:.72rem;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .seg .v{font-family:var(--mono);font-size:.9rem;font-weight:600;margin-top:4px;white-space:nowrap;}
+  .seg.light{color:var(--ink);}
+  .seg.gap{background:transparent;}
+  .seg.tiny .t,.seg.tiny .v{display:none;}
+  @media (max-width:560px){ .row{height:54px;} .seg .t{font-size:.64rem;} .seg .v{font-size:.78rem;} .seg{padding:6px;} }
+
+  .legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--sans);font-size:.78rem;color:var(--ink-2);margin:10px 0 0;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .sw{width:11px;height:11px;border-radius:2px;display:inline-block;flex:none;}
+
+  /* matrix */
+  .matrix{display:grid;grid-template-columns:130px 1fr 1fr;gap:2px;font-family:var(--sans);margin:16px 0;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+  .matrix > div{background:var(--paper-raised);padding:12px 14px;}
+  .matrix .hd{font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600;display:flex;align-items:center;gap:6px;}
+  .matrix .cell .n{font-family:var(--mono);font-size:1.25rem;font-weight:600;color:var(--ink);}
+  .matrix .cell .p{font-family:var(--mono);font-size:.78rem;color:var(--ink-3);margin-left:6px;}
+  .matrix .cell .d{font-size:.82rem;color:var(--ink-2);line-height:1.5;margin-top:6px;}
+  @media (max-width:560px){ .matrix{grid-template-columns:1fr 1fr;} .matrix .corner,.matrix .rowhd{display:none;} .matrix .cell::before{content:attr(data-k);display:block;font-size:.64rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600;margin-bottom:4px;} }
+
+  /* bar chart */
+  .chart{font-family:var(--sans);margin:14px 0 4px;}
+  .brow{display:grid;grid-template-columns:180px 1fr 64px 76px;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);}
+  .brow.head{border-bottom:1px solid var(--line-2);font-size:.64rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);font-weight:600;}
+  .brow .lab{font-size:.82rem;color:var(--ink-2);}
+  .brow .lab code{font-family:var(--mono);font-size:.7rem;color:var(--ink-3);margin-right:6px;}
+  .track{display:flex;gap:2px;height:16px;align-items:stretch;}
+  .bar{height:100%;border-radius:0;}
+  .track .bar:first-child{border-radius:0;}
+  .track .bar:last-child{border-radius:0 4px 4px 0;}
+  .brow .n,.brow .nr{font-family:var(--mono);font-size:.8rem;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .brow .nr.hi{color:var(--flag);font-weight:600;}
+  .brow:hover{background:color-mix(in srgb,var(--line) 35%,transparent);}
+  @media (max-width:560px){ .brow{grid-template-columns:1fr 54px 58px;} .brow .track{grid-column:1 / -1;order:3;} .brow.head .track{display:none;} }
+
+  .tbl{overflow-x:auto;margin:12px 0;}
+  table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:.84rem;}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);}
+  th{font-size:.64rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);font-weight:600;}
+  td{color:var(--ink-2);}
+  td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;}
+  td.num{color:var(--ink);}
+
+  ol.reads{padding-left:22px;margin:0;}
+  ol.reads li{line-height:1.7;margin-bottom:12px;max-width:68ch;}
+
+  .flagbox{border:1px solid var(--flag);border-left:4px solid var(--flag);background:var(--flag-wash);border-radius:4px;padding:14px 18px;margin:16px 0;}
+  .flagbox .lbl{font-family:var(--sans);font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--flag);font-weight:700;margin-bottom:6px;}
+  .flagbox p{margin:0;font-size:.95rem;}
+
+  details{font-family:var(--sans);font-size:.84rem;color:var(--ink-2);margin-top:8px;}
+  summary{cursor:pointer;color:var(--ink-3);font-weight:600;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;}
+
+  #tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--paper-raised);font-family:var(--sans);font-size:.78rem;line-height:1.45;padding:8px 10px;border-radius:4px;max-width:260px;z-index:10;box-shadow:var(--shadow);}
+  #tip b{font-family:var(--mono);}
+
+  footer.sign{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);font-family:var(--sans);font-size:.78rem;color:var(--ink-3);line-height:1.6;}
+  footer code{font-family:var(--mono);font-size:.74rem;word-break:break-all;}
+</style>
+
+<div class="page">
+  <div class="masthead">CX · Programa Aletheia · base GRVIN · agosto/2026</div>
+  <h1>Funil de ligações de agosto: venda, não venda e problemas</h1>
+  <p class="lede">Das 9.636 ligações de agosto, 30% não tiveram conversa. Nas 6.769 em que houve conversa, <strong>metade trouxe algum problema do cliente</strong>, tanto nas de venda quanto nas de não venda. "Não era venda" e "ter problema" são coisas diferentes: 1.727 ligações não eram venda e não tinham problema nenhum.</p>
+
+  <h2><span class="num">1.</span> O funil</h2>
+  <p class="small">Cada faixa soma 100% do nível de cima. A largura é proporcional às 9.636 ligações. Passe o mouse ou toque para ver os detalhes.</p>
+  <div class="icicle" id="icicle"></div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--s-empty)"></i>Sem conversa</span>
+    <span><i class="sw" style="background:var(--s-nv)"></i>Não era venda</span>
+    <span><i class="sw" style="background:var(--s-venda)"></i>Venda (negociação real)</span>
+    <span><i class="sw" style="background:var(--s-prob)"></i>Com problema do cliente</span>
+    <span><i class="sw" style="background:var(--s-none)"></i>Sem problema</span>
+  </div>
+
+  <h2><span class="num">2.</span> Como venda e problema se cruzam</h2>
+  <p class="small">Só as 6.769 ligações com conversa. Os percentuais são sobre esse total.</p>
+  <div class="matrix">
+    <div class="corner"></div>
+    <div class="hd"><i class="sw" style="background:var(--s-prob)"></i>Com problema</div>
+    <div class="hd"><i class="sw" style="background:var(--s-none);border:1px solid var(--line-2)"></i>Sem problema</div>
+
+    <div class="hd rowhd"><i class="sw" style="background:var(--s-nv)"></i>Não era venda</div>
+    <div class="cell" data-k="Não venda · com problema"><span class="n">2.040</span><span class="p">30,1%</span>
+      <div class="d">Suporte clássico: portal, fatura, cadastro, carro na oficina. 1.067 são suporte operacional.</div></div>
+    <div class="cell" data-k="Não venda · sem problema"><span class="n">1.727</span><span class="p">25,5%</span>
+      <div class="d">Prospecção sem tração (696), retenção/inativação (353), acompanhamento pós-venda (249), dúvida de uso sem erro (249).</div></div>
+
+    <div class="hd rowhd"><i class="sw" style="background:var(--s-venda)"></i>Venda</div>
+    <div class="cell" data-k="Venda · com problema"><span class="n">1.387</span><span class="p">20,5%</span>
+      <div class="d">Cliente da base negocia e, no meio, reclama. Muito peso de renovação, onboarding e suporte que virou venda.</div></div>
+    <div class="cell" data-k="Venda · sem problema"><span class="n">1.615</span><span class="p">23,9%</span>
+      <div class="d">Venda "limpa", em sua maioria nova venda para prospect (1.212).</div></div>
+  </div>
+
+  <div class="flagbox">
+    <div class="lbl">Não é causa: problema não "ajuda" a fechar</div>
+    <p>Entre as ligações de venda, as que têm problema fecham <strong>19,9%</strong> (276 de 1.387), contra <strong>6,4%</strong> (103 de 1.615) das que não têm. A diferença vem de <strong>quem liga</strong>. Quem traz problema já é cliente, e renovação e upsell fecham perto de 40%. Venda sem problema é, na maioria, nova venda para prospect (1.212 de 1.615), perfil que fecha bem menos. Ter problema indica cliente da base; não é motivo de fechamento.</p>
+  </div>
+
+  <h2><span class="num">3.</span> Tipos de problema</h2>
+  <p class="small">Ocorrências nas ligações com conversa, separadas pelo tipo de ligação. Uma ligação pode ter mais de um problema (486 têm dois ou mais). "Não resolvido" é o % de ocorrências que terminaram a ligação sem solução.</p>
+  <div class="chart" id="bars"></div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--s-nv)"></i>Em ligação de não venda</span>
+    <span><i class="sw" style="background:var(--s-venda)"></i>Em ligação de venda</span>
+  </div>
+  <details>
+    <summary>Ver como tabela</summary>
+    <div class="tbl"><table id="codeTable"><thead><tr><th>Código</th><th>Problema</th><th class="num">Não venda</th><th class="num">Venda</th><th class="num">Total</th><th class="num">Não resolvido</th></tr></thead><tbody></tbody></table></div>
+  </details>
+
+  <h2><span class="num">4.</span> Leituras</h2>
+  <ol class="reads">
+    <li><strong>O denominador certo é 6.769, não 9.636.</strong> Quase 3 em cada 10 ligações não têm conversa: caixa postal, contato ausente, queda. Calculados sobre a base inteira, todos os indicadores de agosto ficam diluídos. Sobre as ligações com conversa, a taxa de problema é <em class="num">50,6%</em>, não 35,6%.</li>
+    <li><strong>Problema aparece dos dois lados.</strong> 54% das ligações de não venda e 46% das de venda trazem problema. O vendedor comercial está absorvendo suporte o tempo todo, inclusive no meio da negociação.</li>
+    <li><strong>O mix muda conforme o lado.</strong> Na não venda pesam faturamento, cadastro, manutenção, multa e manipulação de NPS. Na venda pesam reserva, disponibilidade e km excedente, problemas que travam a própria negociação (o carro não está disponível, o plano está errado).</li>
+    <li><strong>Sistemas (acesso + reserva) e "Outro" dividem o topo</strong>, com cerca de 1.300 e 845 ocorrências. "Outro" é o que menos se resolve entre os grandes (63% sem solução), porque não tem dono nem roteiro.</li>
+    <li><strong>A não venda resolve menos.</strong> Nas ligações de não venda com problema, 52,6% terminam sem solução, contra 45,5% nas de venda. A escalada formal é rara nos dois lados: cerca de 1 em 10 casos na não venda e 1 em 20 na venda vão para 0800, TI ou supervisão.</li>
+  </ol>
+
+  <footer class="sign">
+    Fonte: <code>agosto_grvin/gemini/CONSOLIDADO.csv</code> (9.636 ligações GRVIN, 100% classificadas). "Venda" = P1 com desfecho diferente de <code>nao_era_venda</code> (interessou, não fechou ou fechou). "Sem conversa" = P2 <code>sem_conteudo</code>. "Problema" = P3 com pelo menos um código. Três ligações sem conversa têm problema registrado e aparecem apenas no total.
+  </footer>
+</div>
+<div id="tip" hidden></div>
+
+<script>
+(function(){
+  const TOTAL = 9636;
+  const fmt = n => n.toLocaleString('pt-BR');
+  const pct = (a,b) => (a/b*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}) + '%';
+
+  // levels: each segment {label, n, color, light, info}
+  const levels = [
+    {name:'Todas as ligações', segs:[
+      {label:'Ligações GRVIN · agosto', n:9636, color:'var(--s-all)', info:'Base completa classificada'}]},
+    {name:'Houve conversa?', segs:[
+      {label:'Sem conversa', n:2867, color:'var(--s-empty)', light:true, info:'Caixa postal, contato ausente, recado, queda · '+pct(2867,TOTAL)+' da base'},
+      {label:'Com conversa', n:6769, color:'var(--s-conv)', info:pct(6769,TOTAL)+' da base · denominador dos indicadores abaixo'}]},
+    {name:'Era venda?', segs:[
+      {gap:true, n:2867},
+      {label:'Não era venda', n:3767, color:'var(--s-nv)', info:pct(3767,6769)+' das ligações com conversa'},
+      {label:'Venda', n:3002, color:'var(--s-venda)', info:pct(3002,6769)+' das ligações com conversa · 379 fecharam (12,6%)'}]},
+    {name:'Teve problema?', segs:[
+      {gap:true, n:2867},
+      {label:'Com problema', n:2040, color:'var(--s-prob)', info:'Não venda com problema · '+pct(2040,3767)+' da não venda'},
+      {label:'Sem problema', n:1727, color:'var(--s-none)', light:true, info:'Não venda sem problema · '+pct(1727,3767)+' da não venda'},
+      {label:'Com problema', n:1387, color:'var(--s-prob)', info:'Venda com problema · '+pct(1387,3002)+' da venda · fecha 19,9%'},
+      {label:'Sem problema', n:1615, color:'var(--s-none)', light:true, info:'Venda sem problema · '+pct(1615,3002)+' da venda · fecha 6,4%'}]},
+  ];
+
+  const tip = document.getElementById('tip');
+  function showTip(e, html){
+    tip.innerHTML = html; tip.hidden = false;
+    const r = tip.getBoundingClientRect();
+    let x = (e.clientX ?? 0) + 14, y = (e.clientY ?? 0) + 14;
+    if (x + r.width > innerWidth - 8) x = innerWidth - r.width - 8;
+    if (y + r.height > innerHeight - 8) y = (e.clientY ?? 0) - r.height - 10;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  function tipAt(el, html){
+    const b = el.getBoundingClientRect();
+    showTip({clientX:b.left + 8, clientY:b.bottom}, html);
+  }
+  const hide = () => { tip.hidden = true; };
+
+  const ic = document.getElementById('icicle');
+  levels.forEach(lv => {
+    const w = document.createElement('div'); w.className = 'lvl';
+    w.innerHTML = '<div class="lvl-name">'+lv.name+'</div>';
+    const row = document.createElement('div'); row.className = 'row';
+    lv.segs.forEach(s => {
+      const d = document.createElement('div');
+      d.style.flex = s.n + ' 1 0';
+      if (s.gap){ d.className = 'seg gap'; row.appendChild(d); return; }
+      d.className = 'seg' + (s.light ? ' light' : '') + (s.n/TOTAL < 0.1 ? ' tiny' : '');
+      d.style.background = s.color;
+      d.tabIndex = 0;
+      d.setAttribute('aria-label', s.label + ': ' + fmt(s.n) + ' ligações. ' + s.info);
+      d.innerHTML = '<div class="t">'+s.label+'</div><div class="v">'+fmt(s.n)+' · '+pct(s.n,TOTAL)+'</div>';
+      const html = '<strong>'+s.label+'</strong><br><b>'+fmt(s.n)+'</b> ligações<br>'+s.info;
+      d.addEventListener('mousemove', e => showTip(e, html));
+      d.addEventListener('mouseleave', hide);
+      d.addEventListener('focus', () => tipAt(d, html));
+      d.addEventListener('blur', hide);
+      row.appendChild(d);
+    });
+    w.appendChild(row); ic.appendChild(w);
+  });
+
+  // problem codes: [code, label, naoVenda, venda, naoResolvido%]
+  const codes = [
+    ['P1','Acesso/sistema',462,381,34.0],
+    ['P11','Outro (sem categoria)',475,370,62.6],
+    ['P2','Faturamento/cobrança',357,185,50.0],
+    ['P10','Reserva/sistema',226,243,30.5],
+    ['P5','Condutor/cadastro',213,89,28.1],
+    ['P4','Manutenção/substituto',169,57,52.2],
+    ['P7','Disponibilidade',75,101,67.8],
+    ['P6','Km excedente',54,96,50.7],
+    ['P12','Manipulação de NPS',98,37,95.6],
+    ['P3','Multa/infração',99,28,40.2],
+    ['P9','Sinistro',84,30,50.0],
+    ['P8','Franquia/agência',14,4,72.2],
+  ];
+  const max = Math.max(...codes.map(c => c[2]+c[3]));
+  const bars = document.getElementById('bars');
+  bars.innerHTML = '<div class="brow head"><div>Problema</div><div class="track"></div><div class="n">Total</div><div class="nr">Não resolv.</div></div>';
+  const tb = document.querySelector('#codeTable tbody');
+  codes.forEach(([c,l,nv,v,nr]) => {
+    const t = nv+v;
+    const r = document.createElement('div'); r.className = 'brow'; r.tabIndex = 0;
+    r.innerHTML = '<div class="lab"><code>'+c+'</code>'+l+'</div>'+
+      '<div class="track"><div class="bar" style="width:'+(nv/max*100)+'%;background:var(--s-nv)"></div><div class="bar" style="width:'+(v/max*100)+'%;background:var(--s-venda)"></div></div>'+
+      '<div class="n">'+fmt(t)+'</div><div class="nr'+(nr>=50?' hi':'')+'">'+nr.toLocaleString('pt-BR',{minimumFractionDigits:1})+'%</div>';
+    const html = '<strong>'+c+' · '+l+'</strong><br>Não venda: <b>'+fmt(nv)+'</b> ('+pct(nv,t)+')<br>Venda: <b>'+fmt(v)+'</b> ('+pct(v,t)+')<br>Não resolvido: <b>'+nr.toLocaleString('pt-BR')+'%</b>';
+    r.addEventListener('mousemove', e => showTip(e, html));
+    r.addEventListener('mouseleave', hide);
+    r.addEventListener('focus', () => tipAt(r, html));
+    r.addEventListener('blur', hide);
+    bars.appendChild(r);
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>'+c+'</td><td>'+l+'</td><td class="num">'+fmt(nv)+'</td><td class="num">'+fmt(v)+'</td><td class="num">'+fmt(t)+'</td><td class="num">'+nr.toLocaleString('pt-BR',{minimumFractionDigits:1})+'%</td>';
+    tb.appendChild(tr);
+  });
+  addEventListener('scroll', hide, {passive:true});
+})();
+</script>
