@@ -15,6 +15,9 @@ SAIDA (na pasta escolhida), com o nome do dia (ex: classificacao_2026-09-22):
            separador ";" (abre direto no Excel)
   _andamento.jsonl — respostas salvas uma a uma; se cair no meio, rode de novo com o mesmo arquivo e
            a mesma pasta que ele continua de onde parou.
+  consumo_diario.csv — 1 linha por dia (ligacoes, tokens, custo estimado), para acompanhar o consumo do mes.
+Na tela aparece cada ligacao (desfecho, tipo, tokens) e o acumulado de tokens e custo; --silencioso mostra
+so 1 linha a cada 25.
 
 FORMATO (vencedor do teste teste_gpt_localiza/, config C7): 11 prompts por ligacao em 1 pedido so
 (P1, P2, P3, P5, P6, P7, P8, P9, P10, P11, P15), transcricao compactada, resposta so com codigos, cache
@@ -486,6 +489,29 @@ def linha_csv(reg):
     }
 
 
+def registrar_consumo(saida, nome, arquivo_entrada, registros, fontes, tok, custo):
+    """consumo_diario.csv na pasta de saida: 1 linha por dia/arquivo (rodar de novo o mesmo dia atualiza a linha)."""
+    caminho = saida / "consumo_diario.csv"
+    campos = ["resultado", "arquivo_entrada", "atualizado_em", "modelo", "ligacoes", "pelo_gpt", "curtas_sem_conteudo",
+              "com_erro", "tokens_entrada", "tokens_cache", "tokens_saida", "tokens_total", "custo_estimado_usd"]
+    linhas = []
+    if caminho.exists():
+        with open(caminho, encoding="utf-8-sig", newline="") as f:
+            linhas = [r for r in csv.DictReader(f, delimiter=";") if r.get("resultado") != nome]
+    linhas.append({
+        "resultado": nome, "arquivo_entrada": arquivo_entrada, "atualizado_em": datetime.now().isoformat(timespec="seconds"),
+        "modelo": MODELO, "ligacoes": len(registros), "pelo_gpt": fontes["gpt"] + fontes["simulado"],
+        "curtas_sem_conteudo": fontes["auto_curta"], "com_erro": fontes["erro"],
+        "tokens_entrada": tok["prompt_tokens"], "tokens_cache": tok["cached_tokens"], "tokens_saida": tok["completion_tokens"],
+        "tokens_total": tok["prompt_tokens"] + tok["completion_tokens"], "custo_estimado_usd": f"{custo:.4f}".replace(".", ","),
+    })
+    linhas.sort(key=lambda r: r["resultado"])
+    with open(caminho, "w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=campos, delimiter=";")
+        w.writeheader()
+        w.writerows(linhas)
+
+
 # ---------------------------------------------------------------------------
 # Principal
 # ---------------------------------------------------------------------------
@@ -495,6 +521,7 @@ def main():
     ap.add_argument("--saida", help="pasta de saida (sem isso, abre uma janela)")
     ap.add_argument("--workers", type=int, default=WORKERS)
     ap.add_argument("--simular", action="store_true", help="nao chama a API (teste do script)")
+    ap.add_argument("--silencioso", action="store_true", help="mostra so 1 linha a cada 25 ligacoes")
     args = ap.parse_args()
 
     entrada = args.entrada or escolher_arquivo()
@@ -539,6 +566,12 @@ def main():
           f"| ignoradas: {ignoradas} | modelo {MODELO}")
     trava = threading.Lock()
     contador = [0]
+    acum = {"prompt_tokens": 0, "cached_tokens": 0, "completion_tokens": 0}
+    pin, pcache, pout = PRECOS.get(MODELO, (0, 0, 0))
+    fmt = lambda n: f"{n:,}".replace(",", ".")
+    if not args.silencioso:
+        print(f"{'':>13} {'ligacao':<9}{'fonte':<11}{'desfecho':<22}{'tipo':<21}{'entrada':>8}{'cache':>7}{'saida':>6}"
+              f"   acumulado")
 
     def processar(lig):
         t = compactar(lig["transcricao_limpa"])
@@ -559,9 +592,18 @@ def main():
                 f.write(json.dumps(reg, ensure_ascii=False) + "\n")
             feitos[reg["cd_segmento"]] = reg
             contador[0] += 1
-            if contador[0] % 25 == 0 or contador[0] == len(pendentes) or reg["fonte_classificacao"] == "erro":
-                print(f"  [{contador[0]}/{len(pendentes)}] {reg['cd_segmento'][:8]} {reg['fonte_classificacao']}"
-                      + (f" — {reg['erro'][:80]}" if reg["erro"] else ""))
+            u = reg["uso"] or {}
+            for k in acum:
+                acum[k] += u.get(k, 0)
+            custo_acum = ((acum["prompt_tokens"] - acum["cached_tokens"]) * pin + acum["cached_tokens"] * pcache
+                          + acum["completion_tokens"] * pout) / 1e6
+            if not args.silencioso or contador[0] % 25 == 0 or contador[0] == len(pendentes) or reg["erro"]:
+                c = reg["classificacao"]
+                print(f"  [{contador[0]:>4}/{len(pendentes)}] {reg['cd_segmento'][:8]} {reg['fonte_classificacao']:<11}"
+                      f"{c['P1']['desfecho'][:21]:<22}{c['P2']['tipo'][:20]:<21}"
+                      f"{fmt(u.get('prompt_tokens', 0)):>8}{fmt(u.get('cached_tokens', 0)):>7}{fmt(u.get('completion_tokens', 0)):>6}"
+                      f"   {fmt(acum['prompt_tokens'] + acum['completion_tokens'])} tok ~US$ {custo_acum:.3f}"
+                      + (f"  ERRO: {reg['erro'][:70]}" if reg["erro"] else ""))
 
     with ThreadPoolExecutor(max_workers=max(1, args.workers)) as ex:
         list(ex.map(processar, pendentes))
@@ -593,6 +635,8 @@ def main():
               f"— ~US$ {custo:.2f} (preco publico)\n\nArquivos em {saida}:\n  {nome}.json\n  {nome}.csv")
     if fontes["erro"]:
         resumo += f"\n\n{fontes['erro']} ligacoes deram erro: rode de novo com o mesmo arquivo e pasta para tentar so elas."
+    registrar_consumo(saida, nome, entrada.name, registros, fontes, tok, custo)
+    resumo += f"\n  consumo_diario.csv (1 linha por dia, para acompanhar o mes)"
     avisar("Classificacao concluida", resumo)
 
 
