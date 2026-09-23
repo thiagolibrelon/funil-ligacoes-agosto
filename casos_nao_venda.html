@@ -1,0 +1,229 @@
+<title>Não Venda Não É Problema</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --paper:#F6F5F1; --paper-raised:#FFFFFF;
+    --ink:#1C1C1A; --ink-2:#46443E; --ink-3:#807D73;
+    --line:#D8D5CB; --line-2:#C3BFB2;
+    --quote:#F3F1EB;
+    --s-venda:#2a78d6; --s-nv:#1baf7a; --s-prob:#eb6834; --s-none:#A8A396;
+    --shadow:0 1px 2px rgb(28 28 26 / .05), 0 8px 22px -12px rgb(28 28 26 / .16);
+    --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --serif:"Source Serif 4",Georgia,serif;
+    --mono:"IBM Plex Mono","SF Mono",Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --paper:#171613; --paper-raised:#201F1B; --ink:#EDEBE4; --ink-2:#C2BFB4; --ink-3:#8A867A;
+      --line:#37352C; --line-2:#464338; --quote:#2A2924;
+      --s-venda:#3987e5; --s-nv:#199e70; --s-prob:#d95926; --s-none:#7A766B;
+      --shadow:0 1px 2px rgb(0 0 0 / .35), 0 10px 30px -10px rgb(0 0 0 / .55);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --paper:#171613; --paper-raised:#201F1B; --ink:#EDEBE4; --ink-2:#C2BFB4; --ink-3:#8A867A;
+    --line:#37352C; --line-2:#464338; --quote:#2A2924;
+    --s-venda:#3987e5; --s-nv:#199e70; --s-prob:#d95926; --s-none:#7A766B;
+    --shadow:0 1px 2px rgb(0 0 0 / .35), 0 10px 30px -10px rgb(0 0 0 / .55);
+  }
+
+  *{box-sizing:border-box;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);padding-inline:16px;padding-block:24px;}
+  .page{max-width:780px;margin:0 auto;padding:56px 36px 90px;background:var(--paper-raised);box-shadow:var(--shadow);border-radius:2px;}
+  @media (max-width:760px){.page{padding:32px 18px 64px;} body{padding-inline:0;padding-block:0;}}
+
+  .masthead{font-family:var(--sans);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:22px;}
+  h1{font-weight:700;font-size:1.6rem;margin:0 0 12px;line-height:1.25;text-wrap:balance;}
+  .lede{font-size:1.04rem;line-height:1.7;color:var(--ink-2);margin:0 0 8px;max-width:64ch;}
+  h2{font-family:var(--sans);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:46px 0 14px;display:flex;align-items:center;gap:10px;}
+  h2 .num{font-family:var(--mono);color:var(--ink);font-size:.82rem;}
+  h2::after{content:"";flex:1;height:1px;background:var(--line);}
+  h2 .sw{width:11px;height:11px;border-radius:2px;flex:none;}
+  p{line-height:1.7;font-size:1rem;margin:0 0 14px;max-width:68ch;}
+  p.small{font-size:.86rem;color:var(--ink-2);font-family:var(--sans);}
+  strong{font-weight:600;}
+  em.num{font-style:normal;font-family:var(--mono);font-weight:600;}
+
+  /* two questions */
+  .qs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0 8px;font-family:var(--sans);}
+  .q{border:1px solid var(--line-2);border-radius:4px;padding:16px 18px;}
+  .q .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600;margin-bottom:6px;}
+  .q .t{font-family:var(--serif);font-size:1.08rem;font-weight:600;line-height:1.35;margin-bottom:8px;}
+  .q .d{font-size:.84rem;color:var(--ink-2);line-height:1.55;}
+  @media (max-width:560px){.qs{grid-template-columns:1fr;}}
+
+  .quad{display:grid;grid-template-columns:110px 1fr 1fr;gap:2px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;font-family:var(--sans);margin:18px 0 6px;}
+  .quad > div{background:var(--paper-raised);padding:10px 12px;font-size:.82rem;color:var(--ink-2);line-height:1.45;}
+  .quad .hd{font-size:.64rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600;}
+  .quad .c b{font-family:var(--mono);color:var(--ink);font-size:.95rem;display:block;}
+  .quad a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line-2);}
+  .quad a:hover{border-color:var(--ink);}
+  @media (max-width:560px){.quad{grid-template-columns:1fr 1fr;} .quad .corner,.quad .rh{display:none;} .quad .c::before{content:attr(data-k);display:block;font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600;margin-bottom:3px;}}
+
+  /* case */
+  .case{border-top:1px solid var(--line);padding:22px 0 6px;}
+  .case:first-of-type{border-top:none;padding-top:4px;}
+  .case-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:8px;}
+  .case h3{font-size:1.12rem;font-weight:600;margin:0;line-height:1.35;text-wrap:balance;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;font-family:var(--sans);margin:0 0 12px;}
+  .chip{font-size:.7rem;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid var(--line-2);color:var(--ink-2);display:inline-flex;align-items:center;gap:6px;}
+  .chip i{width:8px;height:8px;border-radius:2px;display:inline-block;}
+  .chip.id{font-family:var(--mono);font-weight:500;color:var(--ink-3);border-style:dashed;}
+  blockquote{margin:0 0 14px;background:var(--quote);border-radius:4px;padding:12px 16px;font-family:var(--sans);font-size:.86rem;line-height:1.6;color:var(--ink-2);}
+  blockquote .ln{display:block;}
+  blockquote .who{font-weight:600;color:var(--ink);margin-right:4px;}
+  blockquote .gap{display:block;color:var(--ink-3);font-size:.8rem;}
+  .why{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-family:var(--sans);font-size:.84rem;line-height:1.55;}
+  .why > div{padding:10px 12px;border-radius:4px;border:1px solid var(--line);}
+  .why .k{font-size:.64rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600;margin-bottom:4px;}
+  .why > div{color:var(--ink-2);}
+  @media (max-width:560px){.why{grid-template-columns:1fr;}}
+
+  .rule{border:2px solid var(--ink);border-radius:4px;padding:18px 20px;margin:18px 0;}
+  .rule .lbl{font-family:var(--sans);font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:700;margin-bottom:10px;}
+  .rule ul{margin:0;padding-left:20px;}
+  .rule li{line-height:1.6;margin-bottom:8px;}
+
+  footer.sign{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);font-family:var(--sans);font-size:.78rem;color:var(--ink-3);line-height:1.6;}
+</style>
+
+<div class="page">
+  <div class="masthead">CX · Programa Aletheia · casos reais · agosto/2026</div>
+  <h1>"Não era venda" não quer dizer "tinha problema"</h1>
+  <p class="lede">Nove ligações reais de agosto, anonimizadas, mostram que são <strong>duas perguntas independentes</strong>. Em agosto, 1.727 ligações não eram venda e não tinham problema nenhum. Também houve 1.387 ligações de venda com problema no meio da negociação.</p>
+
+  <div class="qs">
+    <div class="q"><div class="k">Pergunta 1 · Era venda?</div><div class="t">Houve negociação comercial?</div><div class="d">Tem cotação, condição, proposta ou decisão de compra em jogo. Oferecer "se precisar, me chama" não conta.</div></div>
+    <div class="q"><div class="k">Pergunta 2 · Tinha problema?</div><div class="t">Alguma coisa falhou ou está travando o cliente?</div><div class="d">Senha que não entra, fatura vencida, reserva presa, carro indisponível. Dúvida de uso sem erro, recado ou sondagem não contam.</div></div>
+  </div>
+
+  <div class="quad">
+    <div class="corner"></div>
+    <div class="hd">Com problema</div>
+    <div class="hd">Sem problema</div>
+    <div class="hd rh">Não era venda</div>
+    <div class="c" data-k="Não venda · com problema"><b>2.040</b>Suporte: <a href="#b1">senha</a>, <a href="#b2">fatura</a></div>
+    <div class="c" data-k="Não venda · sem problema"><b>1.727</b><a href="#a1">Inativação</a>, <a href="#a2">visita</a>, <a href="#a3">primeiro contato</a>, <a href="#a4">roteamento</a></div>
+    <div class="hd rh">Venda</div>
+    <div class="c" data-k="Venda · com problema"><b>1.387</b><a href="#c1">Reserva presa</a>, <a href="#c2">sem carro</a></div>
+    <div class="c" data-k="Venda · sem problema"><b>1.615</b><a href="#d1">Venda limpa</a></div>
+  </div>
+  <p class="small">Ligações com conversa em agosto (6.769). Clique para ir ao caso.</p>
+
+  <h2><i class="sw" style="background:var(--s-nv)"></i><span class="num">A</span> Não era venda e não tinha problema</h2>
+  <p>É o quadrante que o time costuma esquecer. São ligações de relacionamento e manutenção de carteira: ninguém negociou e nada quebrou.</p>
+
+  <div class="case" id="a1">
+    <div class="case-head"><h3>Cadastro prestes a inativar: o cliente comprou frota própria</h3></div>
+    <div class="chips"><span class="chip"><i style="background:var(--s-nv)"></i>Não venda</span><span class="chip"><i style="background:var(--s-none)"></i>Sem problema</span><span class="chip">Retenção / inativação</span><span class="chip id">496df53d</span></div>
+    <blockquote>
+      <span class="ln"><span class="who">Vendedor:</span>Eu vi que vai completar um ano sem locação conosco. Quero entender como está a sua demanda do dia a dia para a gente poder retomar a parceria.</span>
+      <span class="ln"><span class="who">Cliente:</span>Por enquanto a gente não está precisando, não. A gente acabou fazendo aquisição de carros aqui, porque é utilitário que está usando muito.</span>
+    </blockquote>
+    <div class="why"><div><div class="k">Por que não é venda</div>Não houve cotação nem proposta. O vendedor só reforça o contato por e-mail.</div><div><div class="k">Por que não é problema</div>Nada falhou. O cliente decidiu ter frota própria, uma escolha de negócio.</div></div>
+  </div>
+
+  <div class="case" id="a2">
+    <div class="case-head"><h3>Visita de rotina: "tá tudo tranquilo"</h3></div>
+    <div class="chips"><span class="chip"><i style="background:var(--s-nv)"></i>Não venda</span><span class="chip"><i style="background:var(--s-none)"></i>Sem problema</span><span class="chip">Pós-venda / satisfação</span><span class="chip id">44543c13</span></div>
+    <blockquote>
+      <span class="ln"><span class="who">Vendedora:</span>Vocês estão no meu plano de visita desse mês. Queria saber se está tudo ok com as locações, se tem alguma demanda prevista para os próximos dias.</span>
+      <span class="ln"><span class="who">Cliente:</span>Tá tudo tranquilo. [...] Renovamos esse ano novamente.</span>
+    </blockquote>
+    <div class="why"><div><div class="k">Por que não é venda</div>A renovação já tinha acontecido. A ligação é só de acompanhamento.</div><div><div class="k">Por que não é problema</div>O cliente confirma que está tudo certo. É o cenário ideal de uma carteira saudável.</div></div>
+  </div>
+
+  <div class="case" id="a3">
+    <div class="case-head"><h3>Primeiro contato após cadastro: sem demanda hoje</h3></div>
+    <div class="chips"><span class="chip"><i style="background:var(--s-nv)"></i>Não venda</span><span class="chip"><i style="background:var(--s-none)"></i>Sem problema</span><span class="chip">Acompanhamento</span><span class="chip id">1b3b27ac</span></div>
+    <blockquote>
+      <span class="ln"><span class="who">Vendedor:</span>Eu vi que você fez o cadastro da sua empresa. Hoje você tem alguma demanda?</span>
+      <span class="ln"><span class="who">Cliente:</span>Para hoje não. [...] Já está pronto o cadastro para, na hora, não ficar preso. [...] Parando algum carro para manutenção, a gente deve estar locando, sim.</span>
+    </blockquote>
+    <div class="why"><div><div class="k">Por que não é venda</div>Não há pedido em jogo. O cliente só deixou o cadastro pronto para uma necessidade futura.</div><div><div class="k">Por que não é problema</div>O cadastro funcionou. O cliente não relata nenhuma dificuldade.</div></div>
+  </div>
+
+  <div class="case" id="a4">
+    <div class="case-head"><h3>Mudança de carteira: o cliente só quer saber quem é o novo gerente</h3></div>
+    <div class="chips"><span class="chip"><i style="background:var(--s-nv)"></i>Não venda</span><span class="chip"><i style="background:var(--s-none)"></i>Sem problema</span><span class="chip">Roteamento</span><span class="chip id">bfaabc28</span></div>
+    <blockquote>
+      <span class="ln"><span class="who">Cliente:</span>Eu acho que não é mais você que atende minha empresa, né?</span>
+      <span class="ln"><span class="who">Vendedora:</span>Não, teve uma mudança. Só me confirma o seu CNPJ, por favor. [...] Vou mandar uma mensagem para ela pedindo para ela te retornar.</span>
+    </blockquote>
+    <div class="why"><div><div class="k">Por que não é venda</div>A ligação só direciona o cliente para a pessoa certa.</div><div><div class="k">Por que não é problema</div>Nada falhou. É uma dúvida administrativa, resolvida em segundos.</div></div>
+  </div>
+
+  <h2><i class="sw" style="background:var(--s-prob)"></i><span class="num">B</span> Não era venda e tinha problema</h2>
+  <p>É o suporte que o time já tem em mente. Existe, e é grande (2.040 ligações), mas é só uma parte da não venda.</p>
+
+  <div class="case" id="b1">
+    <div class="case-head"><h3>Cliente não consegue redefinir a senha do portal</h3></div>
+    <div class="chips"><span class="chip"><i style="background:var(--s-nv)"></i>Não venda</span><span class="chip"><i style="background:var(--s-prob)"></i>P1 Acesso/sistema</span><span class="chip">Resolvido na ligação</span><span class="chip id">cc1901c5</span></div>
+    <blockquote>
+      <span class="ln"><span class="who">Cliente:</span>A gente tentou fazer o login e pedir uma nova senha. Para redefinir, o processo online pede foto, e ele não está conseguindo.</span>
+      <span class="gap">[...] a vendedora identifica que o cliente estava usando o login de outra pessoa e passa o login correto [...]</span>
+      <span class="ln"><span class="who">Vendedora:</span>Aí vai pedir para fazer a biometria, aí é a dele mesmo.</span>
+    </blockquote>
+    <div class="why"><div><div class="k">Por que não é venda</div>Não se falou de locação. É só suporte de acesso.</div><div><div class="k">Por que é problema</div>O cliente estava travado no portal. Havia uma falha concreta a resolver.</div></div>
+  </div>
+
+  <div class="case" id="b2">
+    <div class="case-head"><h3>Fatura vencida: pedido de prorrogação sem juros</h3></div>
+    <div class="chips"><span class="chip"><i style="background:var(--s-nv)"></i>Não venda</span><span class="chip"><i style="background:var(--s-prob)"></i>P2 Faturamento</span><span class="chip">Resolvido em parte</span><span class="chip id">d8cb0363</span></div>
+    <blockquote>
+      <span class="ln"><span class="who">Cliente:</span>Você consegue ver para mim de eu não ter a cobrança pelo atraso, e se consegue colocar um tempinho para frente?</span>
+      <span class="ln"><span class="who">Vendedora:</span>Ela venceu dia 9 [...] Deixa eu ver com o meu financeiro o que eu vou conseguir fazer e vou te falando no WhatsApp.</span>
+    </blockquote>
+    <div class="why"><div><div class="k">Por que não é venda</div>A conversa é só sobre cobrança, sem nenhuma oferta.</div><div><div class="k">Por que é problema</div>Há uma fatura vencida com risco de juros, e a solução depende do financeiro.</div></div>
+  </div>
+
+  <h2><i class="sw" style="background:var(--s-venda)"></i><span class="num">C</span> Era venda e tinha problema</h2>
+  <p>É o contraponto: problema também aparece no meio da negociação e pode travar o fechamento.</p>
+
+  <div class="case" id="c1">
+    <div class="case-head"><h3>O cliente precisa dos carros hoje, mas a reserva está presa em aprovação</h3></div>
+    <div class="chips"><span class="chip"><i style="background:var(--s-venda)"></i>Venda · não fechou</span><span class="chip"><i style="background:var(--s-prob)"></i>P10 Reserva</span><span class="chip">Não resolvido</span><span class="chip id">3bb2a5b8</span></div>
+    <blockquote>
+      <span class="ln"><span class="who">Cliente:</span>Esses carros precisam ser alugados e eu preciso mandar para o cliente hoje. Apareceu uma reserva pendente de aprovação. [...] Os meninos já estão em viagem. Se chegar lá e não tiver carro, a gente precisa de um plano B.</span>
+      <span class="ln"><span class="who">Vendedora:</span>Vou mandar agora para assinar o termo SCR e vou solicitar prioridade.</span>
+    </blockquote>
+    <div class="why"><div><div class="k">Por que é venda</div>Há locação em jogo, com urgência e vários carros.</div><div><div class="k">Por que é problema</div>A aprovação travou a reserva, e o cliente já fala em plano B.</div></div>
+  </div>
+
+  <div class="case" id="c2">
+    <div class="case-head"><h3>O site só libera 30 dias e numa única loja</h3></div>
+    <div class="chips"><span class="chip"><i style="background:var(--s-venda)"></i>Venda · não fechou</span><span class="chip"><i style="background:var(--s-prob)"></i>P7 Disponibilidade</span><span class="chip">Não resolvido</span><span class="chip id">b191608a</span></div>
+    <blockquote>
+      <span class="ln"><span class="who">Cliente:</span>Peguei por 30 dias, que era o único período que o site me deixou fazer. [...] Essa loja é a única que aceita reserva por empresa.</span>
+      <span class="ln"><span class="who">Cliente:</span>Eu teria interesse num carro de sete lugares. Se for uma categoria superior, também tenho interesse.</span>
+    </blockquote>
+    <div class="why"><div><div class="k">Por que é venda</div>O cliente quer locar e aceita até subir de categoria.</div><div><div class="k">Por que é problema</div>Faltou disponibilidade e o site tem restrições, o que trava a venda.</div></div>
+  </div>
+
+  <h2><i class="sw" style="background:var(--s-venda)"></i><span class="num">D</span> Era venda e não tinha problema</h2>
+
+  <div class="case" id="d1">
+    <div class="case-head"><h3>Empresa nova com obra em outro estado, pedido já feito</h3></div>
+    <div class="chips"><span class="chip"><i style="background:var(--s-venda)"></i>Venda · fechou</span><span class="chip"><i style="background:var(--s-none)"></i>Sem problema</span><span class="chip">Nova venda</span><span class="chip id">4522d50a</span></div>
+    <blockquote>
+      <span class="ln"><span class="who">Cliente:</span>A gente pegou uma obra em outro estado [...] Em vez de usar os carros próprios, decidimos alugar. Ficaria mais barato. [...] Fiz agora de manhã um pedido.</span>
+      <span class="ln"><span class="who">Vendedora:</span>Acabei de ver aqui. Tá ótimo, então.</span>
+    </blockquote>
+    <div class="why"><div><div class="k">Por que é venda</div>Houve pedido concreto de locação.</div><div><div class="k">Por que não é problema</div>O fluxo funcionou do cadastro ao pedido.</div></div>
+  </div>
+
+  <div class="rule">
+    <div class="lbl">Para levar para a discussão</div>
+    <ul>
+      <li><strong>"Não venda" diz o que a ligação não foi, não o que ela foi.</strong> Dentro dela há relacionamento, retenção, roteamento e suporte, e só o suporte é problema.</li>
+      <li><strong>Os casos A1 e A2 são trabalho comercial legítimo.</strong> Manter carteira e evitar inativação não é "tempo perdido com suporte".</li>
+      <li><strong>Os casos C1 e C2 mostram que problema também custa venda.</strong> Resolver problema não é só tarefa do suporte.</li>
+    </ul>
+  </div>
+
+  <footer class="sign">
+    Trechos reais das transcrições de agosto/2026 (base GRVIN), editados para leitura: hesitações e falas sobrepostas foram removidas. Nomes de pessoas e empresas foram retirados, e os valores seguem mascarados como na origem. O código ao lado de cada caso é o início do <code>cd_segmento</code>, para auditoria interna. Classificação segundo os prompts P1 (desfecho), P2 (tipo) e P3 (problema).
+  </footer>
+</div>
