@@ -13,6 +13,7 @@ Uso:
 Opcoes do rodar:
   --configs C0,C3        roda so essas configuracoes (padrao: todas)
   --simular              nao chama a API; gera respostas a partir do gabarito (teste do script)
+  --refazer              refaz as configs pedidas mesmo que ja tenham rodado
 
 Saidas (nesta pasta): modelos_disponiveis.json, resultados.jsonl, relatorio.csv,
 relatorio_detalhe.csv. Nenhuma delas contem transcricao — sao essas que voltam.
@@ -230,7 +231,8 @@ FORMATO_ENXUTO = (
     '"P3": {"problemas_identificados": [...] ou ["nenhum"], "quem_relatou": "...", "foi_resolvido_na_ligacao": "...", "escalou_para": "..."}, '
     '"P5": {"teve_challenger": "SIM|NAO", "codigos_challenger": [...], "resultado_imediato": "...", "qualidade": "..."}, '
     '"P6": {"oportunidades_perdidas": [...] ou ["nenhuma"], "valor_potencial_R$": <numero>}, '
-    '"P9": {"tipo_abertura": "...", "usou_nome": "SIM|NAO", "tipo_fechamento": "...", "proximo_passo_claro": "SIM|NAO", "prazo_definido": "SIM|NAO"}}'
+    '"P9": {"tipo_abertura": "AB1|AB2|AB3|AB4|AB5", "usou_nome": "SIM|NAO", "tipo_fechamento": "FC1|FC2|FC3|FC4|FC5", "proximo_passo_claro": "SIM|NAO", "prazo_definido": "SIM|NAO"}}\n'
+    "Use SEMPRE os codigos (B1..B10, P1..P12, CH1..CH7, OP1..OP8, AB1..AB5, FC1..FC5), nunca o nome por extenso."
 )
 
 GRUPOS = ["P1_P2", "P3", "P5_P6", "P9"]
@@ -400,6 +402,8 @@ def cmd_rodar(args):
     if RESULTADOS.exists():
         for ln in RESULTADOS.read_text(encoding="utf-8").splitlines():
             rec = json.loads(ln)
+            if args.refazer and rec["config"] in {c["id"] for c in cfgs}:
+                continue
             if rec.get("ok") and bool(rec.get("simulado")) == bool(args.simular):
                 feitos.add((rec["config"], rec["cd_segmento"], rec["grupo"]))
 
@@ -440,9 +444,16 @@ def _conj(v, vazios=("nenhum", "nenhuma", "na", "")):
     return frozenset(str(x).strip().upper() for x in itens if str(x).strip().lower() not in vazios)
 
 
+# nome por extenso -> codigo (P9), para nao contar como erro um acerto escrito por extenso
+NOMES_P9 = {"contextualizada": "ab1", "relacional": "ab2", "generica": "ab3", "genérica": "ab3", "reativa": "ab4",
+            "de protecao": "ab5", "de proteção": "ab5", "compromisso duplo": "fc1",
+            "proximo passo so do vendedor": "fc2", "convite generico": "fc3", "convite genérico": "fc3",
+            "aberto": "fc4", "diretivo": "fc5"}
+
+
 def _norm(v):
     s = str(v or "").strip().lower()
-    return {"vendedor_puxou": "vendedor", "cliente_queria": "cliente"}.get(s, s) if s else ""
+    return {"vendedor_puxou": "vendedor", "cliente_queria": "cliente", **NOMES_P9}.get(s, s) if s else ""
 
 
 def campos_comparados(gab, gpt):
@@ -577,6 +588,7 @@ def main():
     r = sub.add_parser("rodar")
     r.add_argument("--configs", default="")
     r.add_argument("--simular", action="store_true")
+    r.add_argument("--refazer", action="store_true", help="refaz as configs pedidas mesmo se ja rodaram")
     sub.add_parser("comparar")
     args = ap.parse_args()
     {"modelos": cmd_modelos, "rodar": cmd_rodar, "comparar": cmd_comparar}[args.cmd](args)
