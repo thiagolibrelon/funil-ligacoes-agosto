@@ -1,9 +1,11 @@
 Teste GPT (llm-gate) — rodar na maquina/rede da Localiza
 ========================================================
 
-O que levar para la (so estes 2 arquivos, na mesma pasta):
+O que levar para la (os 3 na mesma pasta):
   - teste_gpt.py
-  - amostra_5.json   (tem transcricao — nao mandar por e-mail externo nem subir no git)
+  - amostra_5.json        (5 ligacoes de agosto + resultado do Gemini)
+  - exemplos_fewshot.json (24 exemplos resolvidos, usados so na config C8)
+  Os dois .json tem trechos de transcricao — nao mandar por e-mail externo nem subir no git.
 
 Pre-requisitos:
   - Python 3 com "requests" (pip install requests)
@@ -19,15 +21,12 @@ Passo a passo (na pasta dos arquivos):
      Lista quais modelos o llm-gate aceita. Gera modelos_disponiveis.json.
 
   2) python teste_gpt.py rodar
-     Roda as configuracoes C0..C4 (+ C5 em diante para cada modelo mais
-     barato encontrado no passo 1) nas 5 ligacoes. Poucos minutos; o
-     terminal mostra tokens de cada pedido. Se cair no meio, rode de novo:
-     ele continua de onde parou.
+     Roda as configuracoes nas 5 ligacoes. Se cair no meio, rode de novo:
+     ele continua de onde parou. So algumas:  --configs C7,C8
+     Refazer uma que ja rodou:                --configs C3 --refazer
 
   3) python teste_gpt.py comparar
-     Mostra a tabela de tokens/custo/concordancia com o Gemini e aponta a
-     configuracao mais barata que empata ou supera o C0 (gpt-4o, como o
-     time usa hoje).
+     Tabela de tokens/custo/concordancia com o Gemini.
 
 O que trazer de volta (nenhum tem transcricao):
   modelos_disponiveis.json, relatorio.csv, relatorio_detalhe.csv
@@ -36,6 +35,12 @@ Configuracoes testadas:
   C0  gpt-4o      4 pedidos/ligacao, transcricao bruta   (como o time faz hoje)
   C1  gpt-4o-mini 4 pedidos/ligacao, transcricao bruta
   C2  gpt-4o-mini 4 pedidos/ligacao, transcricao compacta
-  C3  gpt-4o-mini 1 pedido/ligacao,  transcricao compacta, saida so com codigos
-  C4  gpt-4o      1 pedido/ligacao,  transcricao compacta, saida so com codigos
-  C5+ modelos extras (4.1-nano/mini, 5-nano/mini) no formato do C3, se disponiveis
+  C3  gpt-4o-mini 1 pedido/ligacao,  6 prompts (P1 P2 P3 P5 P6 P9), so codigos
+  C4  gpt-4o      igual ao C3
+  C7  gpt-4o-mini 1 pedido/ligacao, 11 prompts (P1-P3, P5-P11, P15), sem exemplos
+  C8  gpt-4o-mini igual ao C7 + 24 exemplos resolvidos
+  C9+ modelos extras (4.1-nano/mini, 5-nano/mini) no formato do C3, se disponiveis
+
+Concordancia: P1 P2 P3 P5 P6 P9 na coluna "geral"; P7 e P11 na coluna "P7P11".
+P8, P10 e P15 nao tem resultado do Gemini em agosto: o relatorio so conta em
+quantas ligacoes o GPT achou algo e mostra o que achou (relatorio_detalhe.csv).

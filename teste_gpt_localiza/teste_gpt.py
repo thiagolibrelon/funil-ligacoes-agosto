@@ -213,6 +213,33 @@ AB1=Contextualizada | AB2=Relacional | AB3=Generica | AB4=Reativa | AB5=De prote
 FC1=Compromisso duplo(vendedor+cliente+prazo) | FC2=Proximo passo so do vendedor
 FC3=Convite generico("se precisar me chama") | FC4=Aberto | FC5=Diretivo
 usou_nome: SIM|NAO | proximo_passo_claro: SIM|NAO | prazo_definido: SIM|NAO""",
+
+    "P7": """## P7 (Cross-sell e upsell)
+PR1=Aluguel mensal leve(RAC,core) | PR2=Aluguel pesado(caminhao,carreta — NAO inclui PR1) | PR3=Telemetria
+PR4=Protecao total/cobertura de avarias | PR5=Upgrade de categoria | PR6=Km adicional | PR7=Contrato anual
+PR8=Veiculos eletricos | PR9=ZARP | PR10=Meoo | PR11=Venda de Seminovos
+PR12=Gestao de frotas (contrato longo, cliente adquire veiculo personalizavel, administrado pela Localiza — diferente de PR7)
+janela_perdida: SIM se o cliente disse algo que se conecta a um produto e o vendedor NAO ofereceu | NAO caso contrario
+produto_janela: codigo PR da janela perdida (ou "nenhum")
+Exemplos de janela: multa em condutor errado->PR3 | frota propria/personalizacao->PR12 | sinistro com franquia alta->PR4 | renova ha 3+ meses sem personalizacao->PR7 | perfil sustentavel->PR8""",
+
+    "P8": """## P8 (Objecoes) — lista com 0 a N objecoes; lista vazia [] se nao houve objecao
+tipo_objecao: OB1=preco/valor | OB2=prazo/adiamento | OB3=demanda baixa | OB4=produto inadequado | OB5=problema nao resolvido | OB6=burocracia/aprovacao | OB7=indisponibilidade
+resposta_vendedor_codigo: R1=validou e explorou | R2=usou dado do cliente | R3=criou urgencia | R4=posicionou como aliado | R5=capitulou sem explorar | R6=argumentou sem ouvir
+eficacia: alta|media|baixa | desfecho_da_objecao: superada|adiada|perdida""",
+
+    "P10": """## P10 (Promessas do vendedor) — lista com 0 a N promessas; lista vazia [] se nao houve promessa
+PM1=Resolve na ligacao | PM2=Envia documento | PM3=Liga de volta | PM4=Encaminha terceiro | PM5=Negocia internamente | PM6=Promessa implicita
+prazo_prometido: texto curto (ex: hoje, amanha, sem prazo) | risco_nao_cumprimento: baixo|medio|alto|muito_alto""",
+
+    "P11": """## P11 (Inteligencia competitiva) — lista com 0 a N sinais; lista vazia [] se nao houve sinal
+tipo_sinal: IC1=mencao direta a concorrente | IC2=confirmacao de exclusividade | IC3=historico de migracao | IC4=frota propria revelada | IC5=comparacao implicita(sem citar empresa) | IC6=vendedor sondou ativamente | IC7=risco competitivo detectado(cliente aberto a avaliar alternativas)
+concorrente_mencionado: unidas|movida|localfrio|ouro_verde|outro|nenhum
+vendedor_explorou: SIM|NAO|nao_aplicavel""",
+
+    "P15": """## P15 (Eventos raros de alto impacto) — lista com 0 a N eventos; lista vazia [] na grande maioria das ligacoes (nao invente)
+categoria: R1=expansao(contratacao,nova filial,crescimento de frota,novo contrato) | R2=churn(ameaca explicita de saida,insatisfacao recorrente) | R3=inteligencia competitiva(migracao de fornecedor,teste com concorrente) | R4=influencia(indicacao oferecida,contato apresentado) | R5=mudanca estrutural(fusao,aquisicao,troca de gestor do cliente)
+impacto_potencial: alto|medio|baixo""",
 }
 
 FORMATO_COMPLETO = {
@@ -236,6 +263,19 @@ FORMATO_ENXUTO = (
 )
 
 GRUPOS = ["P1_P2", "P3", "P5_P6", "P9"]
+GRUPOS_TUDO = ["P1_P2", "P3", "P5_P6", "P7", "P8", "P9", "P10", "P11", "P15"]
+EXEMPLOS = AQUI / "exemplos_fewshot.json"
+
+FORMATO_TUDO = (
+    FORMATO_ENXUTO.split("\n")[0][:-1] + ", "
+    '"P7": {"produtos_mencionados": [...], "produtos_ofertados": [...], "janela_perdida": "SIM|NAO", "produto_janela": "PR..|nenhum"}, '
+    '"P8": {"objecoes": [{"tipo_objecao": "OB..", "resposta_vendedor_codigo": "R..", "eficacia": "...", "desfecho_da_objecao": "..."}]}, '
+    '"P10": {"promessas": [{"tipo_promessa": "PM..", "prazo_prometido": "...", "risco_nao_cumprimento": "..."}]}, '
+    '"P11": {"sinais": [{"tipo_sinal": "IC..", "concorrente_mencionado": "...", "vendedor_explorou": "SIM|NAO|nao_aplicavel"}]}, '
+    '"P15": {"eventos": [{"categoria": "R..", "impacto_potencial": "..."}]}}\n'
+    "Use SEMPRE os codigos (B1..B10, P1..P12, CH1..CH7, OP1..OP8, PR1..PR12, OB1..OB7, R1..R6, PM1..PM6, "
+    "IC1..IC7, AB1..AB5, FC1..FC5), nunca o nome por extenso."
+)
 
 
 def system_grupo(g):
@@ -251,6 +291,29 @@ def system_unico():
             f"Nao invente informacao que nao esta na transcricao.\n\n"
             + "\n\n".join(TAXO[g] for g in GRUPOS)
             + f"\n\nResponda SOMENTE um objeto JSON valido, sem texto fora dele, no formato:\n{FORMATO_ENXUTO}")
+
+
+def bloco_exemplos():
+    """Exemplos few-shot (exemplos_fewshot.json): trecho + classificacao + motivo. Ficam no system (prefixo fixo = cache)."""
+    ex = json.loads(EXEMPLOS.read_text(encoding="utf-8"))["exemplos"]
+    partes = []
+    for i, e in enumerate(ex, 1):
+        classif = "; ".join(f"{p}: {v if isinstance(v, str) else json.dumps(v, ensure_ascii=False)}"
+                            for p, v in e["classificacao"].items())
+        partes.append(f"### Exemplo {i} ({', '.join(e['prompts'])})\nTrecho:\n{e['trecho']}\n"
+                      f"Classificacao: {classif}\nPor que: {e['motivo']}")
+    return ("# EXEMPLOS RESOLVIDOS (trechos de outras ligacoes; mostram so as dimensoes indicadas — use como "
+            "referencia de criterio, nao copie)\n\n" + "\n\n".join(partes))
+
+
+def system_tudo(com_exemplos):
+    return (f"Voce e analista de ligacoes comerciais B2B de locacao de frotas corporativas "
+            f"(comportamento comercial, Customer Success, Challenger Sale, inteligencia competitiva).\n{CONTEXTO}\n\n"
+            f"Analise a ligacao enviada pelo usuario e classifique TODAS as dimensoes abaixo. "
+            f"Nao invente informacao que nao esta na transcricao.\n\n"
+            + "\n\n".join(TAXO[g] for g in GRUPOS_TUDO)
+            + (f"\n\n{bloco_exemplos()}" if com_exemplos else "")
+            + f"\n\nResponda SOMENTE um objeto JSON valido, sem texto fora dele, no formato:\n{FORMATO_TUDO}")
 
 
 # ---------------------------------------------------------------------------
@@ -304,6 +367,10 @@ def configs_base():
         {"id": "C2", "descricao": "mini + transcricao compacta", "modelo": "gpt-4o-mini", "modo": "grupos", "transcricao": "compacta", "max_tokens": 800},
         {"id": "C3", "descricao": "mini + 1 pedido + saida enxuta", "modelo": "gpt-4o-mini", "modo": "unico", "transcricao": "compacta", "max_tokens": 600},
         {"id": "C4", "descricao": "4o + 1 pedido + saida enxuta", "modelo": "gpt-4o", "modo": "unico", "transcricao": "compacta", "max_tokens": 600},
+        {"id": "C7", "descricao": "mini + 11 prompts em 1 pedido, sem exemplos", "modelo": "gpt-4o-mini", "modo": "tudo",
+         "transcricao": "compacta", "max_tokens": 1500},
+        {"id": "C8", "descricao": "mini + 11 prompts em 1 pedido + exemplos", "modelo": "gpt-4o-mini", "modo": "tudo_exemplos",
+         "transcricao": "compacta", "max_tokens": 1500},
     ]
 
 
@@ -313,7 +380,9 @@ def todas_configs():
     if MODELOS_JSON.exists():
         dados = json.loads(MODELOS_JSON.read_text(encoding="utf-8"))
         disponiveis = {s["modelo"] for s in dados.get("sondagem", []) if s.get("disponivel")}
-    for i, m in enumerate([m for m in EXTRAS_MATRIZ if m in disponiveis], start=5):
+    if not EXEMPLOS.exists():
+        cfgs = [c for c in cfgs if c["modo"] != "tudo_exemplos"]
+    for i, m in enumerate([m for m in EXTRAS_MATRIZ if m in disponiveis], start=9):
         cfgs.append({"id": f"C{i}", "descricao": f"{m} + 1 pedido + saida enxuta", "modelo": m,
                      "modo": "unico", "transcricao": "compacta", "max_tokens": 600})
     return cfgs
@@ -324,6 +393,9 @@ def pedidos(cfg, lig):
     usuario = mensagem_usuario(lig, cfg["transcricao"])
     if cfg["modo"] == "unico":
         return [("TODOS", [{"role": "system", "content": system_unico()}, {"role": "user", "content": usuario}])]
+    if cfg["modo"] in ("tudo", "tudo_exemplos"):
+        system = system_tudo(cfg["modo"] == "tudo_exemplos")
+        return [("TUDO", [{"role": "system", "content": system}, {"role": "user", "content": usuario}])]
     return [(g, [{"role": "system", "content": system_grupo(g)}, {"role": "user", "content": usuario}]) for g in GRUPOS]
 
 
@@ -350,8 +422,12 @@ def resposta_simulada(lig, grupo, mensagens):
                "resultado_imediato": g["P5"]["resultado_imediato"], "qualidade": g["P5"]["qualidade"]},
         "P6": {"oportunidades_perdidas": lista(g["P6"]["oportunidades_perdidas"], "nenhuma"), "valor_potencial_R$": 0},
         "P9": {k: g["P9"][k] for k in ("tipo_abertura", "usou_nome", "tipo_fechamento", "proximo_passo_claro", "prazo_definido")},
+        "P7": {"produtos_mencionados": lista(g["P7"]["produtos_mencionados"], None),
+               "produtos_ofertados": lista(g["P7"]["produtos_ofertados"], None),
+               "janela_perdida": g["P7"]["janela_perdida"], "produto_janela": g["P7"]["produto_janela"]},
+        "P8": {"objecoes": []}, "P10": {"promessas": []}, "P11": {"sinais": g["P11"]["sinais"]}, "P15": {"eventos": []},
     }
-    chaves = {"TODOS": list(blocos), "P1_P2": ["P1", "P2"], "P3": ["P3"], "P5_P6": ["P5", "P6"], "P9": ["P9"]}[grupo]
+    chaves = {"TUDO": list(blocos), "TODOS": ["P1", "P2", "P3", "P5", "P6", "P9"], "P1_P2": ["P1", "P2"], "P3": ["P3"], "P5_P6": ["P5", "P6"], "P9": ["P9"]}[grupo]
     resp = {k: blocos[k] for k in chaves}
     n_in = sum(len(m["content"]) for m in mensagens) // 4
     return resp, {"prompt_tokens": n_in, "completion_tokens": len(json.dumps(resp)) // 4, "cached_tokens": 0,
@@ -451,6 +527,10 @@ NOMES_P9 = {"contextualizada": "ab1", "relacional": "ab2", "generica": "ab3", "g
             "aberto": "fc4", "diretivo": "fc5"}
 
 
+def _conj_b(v):
+    return frozenset(f"B{x}" if x.isdigit() else x for x in _conj(v))
+
+
 def _norm(v):
     s = str(v or "").strip().lower()
     return {"vendedor_puxou": "vendedor", "cliente_queria": "cliente", **NOMES_P9}.get(s, s) if s else ""
@@ -463,7 +543,7 @@ def campos_comparados(gab, gpt):
     out = [
         ("P1.desfecho", _norm(g1["desfecho"]), _norm(p("P1").get("desfecho")), True),
         ("P1.intencao_entrada", _norm(g1["intencao_entrada"]), _norm(p("P1").get("intencao_entrada")), False),
-        ("P1.B (conjunto)", _conj([f"B{i}" for i in range(1, 11) if g1[f"B{i}"] == "SIM"]), _conj(p("P1").get("B", [])), False),
+        ("P1.B (conjunto)", _conj([f"B{i}" for i in range(1, 11) if g1[f"B{i}"] == "SIM"]), _conj_b(p("P1").get("B", [])), False),
         ("P2.tipo", _norm(g2["tipo"]), _norm(p("P2").get("tipo")), True),
         ("P3.problemas (conjunto)", _conj(g3["problemas_identificados"]), _conj(p("P3").get("problemas_identificados")), True),
         ("P3.foi_resolvido", _norm(g3["foi_resolvido_na_ligacao"]), _norm(p("P3").get("foi_resolvido_na_ligacao")), False),
@@ -480,6 +560,22 @@ def campos_comparados(gab, gpt):
         out.append(("P5.qualidade", _norm(g5["qualidade"]), _norm(p("P5").get("qualidade")), False))
         out.append(("P5.codigos (conjunto)", _conj(g5["codigos_challenger"]), _conj(p("P5").get("codigos_challenger")), False))
     return out
+
+
+def campos_extras(gab, gpt):
+    """P7 e P11 (so existem nas configs de 11 prompts). Ficam fora da concordancia geral para manter C1-C4 comparaveis."""
+    if "P7" not in gpt and "P11" not in gpt:
+        return []
+    g7, p7 = gab["P7"], gpt.get("P7") or {}
+    sinais = (gpt.get("P11") or {}).get("sinais") or []
+    return [
+        ("P7.janela_perdida", _norm(g7["janela_perdida"]), _norm(p7.get("janela_perdida"))),
+        ("P7.produto_janela", _norm(g7["produto_janela"]).upper() if _norm(g7["produto_janela"]) != "nenhum" else "nenhum",
+         (_norm(p7.get("produto_janela")).upper() or "nenhum") if _norm(p7.get("produto_janela")) not in ("", "nenhum") else "nenhum"),
+        ("P7.produtos_ofertados (conjunto)", _conj(g7["produtos_ofertados"]), _conj(p7.get("produtos_ofertados"))),
+        ("P11.sinais (conjunto)", frozenset(x["tipo_sinal"].upper() for x in gab["P11"]["sinais"]),
+         frozenset(str(x.get("tipo_sinal", "")).upper() for x in sinais if isinstance(x, dict))),
+    ]
 
 
 def _fmt(v):
@@ -520,7 +616,8 @@ def cmd_comparar(_args):
     for cfg_id in sorted(por_cfg, key=lambda c: int(c[1:])):
         d = por_cfg[cfg_id]
         info = cfg_info.get(cfg_id, {})
-        acertos = total = acertos_funil = total_funil = 0
+        acertos = total = acertos_funil = total_funil = acertos_extra = total_extra = 0
+        preenchidos = {"P8": 0, "P10": 0, "P15": 0}
         por_campo = {}
         for cd, gpt in d["lig"].items():
             for campo, vg, vp, funil in campos_comparados(amostra[cd]["gabarito_gemini"], gpt):
@@ -531,6 +628,17 @@ def cmd_comparar(_args):
                 c = por_campo.setdefault(campo, [0, 0]); c[0] += bate; c[1] += 1
                 detalhe.append({"config": cfg_id, "cd_segmento": cd[:8], "campo": campo,
                                 "gemini": _fmt(vg), "gpt": _fmt(vp), "bate": "SIM" if bate else "NAO"})
+            for campo, vg, vp in campos_extras(amostra[cd]["gabarito_gemini"], gpt):
+                bate = vg == vp
+                acertos_extra += bate; total_extra += 1
+                c = por_campo.setdefault(campo, [0, 0]); c[0] += bate; c[1] += 1
+                detalhe.append({"config": cfg_id, "cd_segmento": cd[:8], "campo": campo,
+                                "gemini": _fmt(vg), "gpt": _fmt(vp), "bate": "SIM" if bate else "NAO"})
+            for pr, chave in (("P8", "objecoes"), ("P10", "promessas"), ("P15", "eventos")):
+                if ((gpt.get(pr) or {}).get(chave) or []):
+                    preenchidos[pr] += 1
+                    detalhe.append({"config": cfg_id, "cd_segmento": cd[:8], "campo": f"{pr} (sem gabarito)",
+                                    "gemini": "", "gpt": json.dumps(gpt[pr][chave], ensure_ascii=False)[:300], "bate": ""})
         n = len(d["uso"]) or 1
         soma = lambda k: sum(u[k] for u in d["uso"].values())
         custo_ok = d["uso"] and all(u["custo_ok"] for u in d["uso"].values())
@@ -545,6 +653,10 @@ def cmd_comparar(_args):
             "latencia_por_lig_s": round(soma("lat") / n, 1),
             "concordancia_geral_pct": round(100 * acertos / total, 1) if total else "",
             "concordancia_funil_pct": round(100 * acertos_funil / total_funil, 1) if total_funil else "",
+            "concordancia_P7_P11_pct": round(100 * acertos_extra / total_extra, 1) if total_extra else "",
+            "ligacoes_com_P8_objecao": preenchidos["P8"] if total_extra else "",
+            "ligacoes_com_P10_promessa": preenchidos["P10"] if total_extra else "",
+            "ligacoes_com_P15_evento": preenchidos["P15"] if total_extra else "",
         }
         for campo, (a, t) in sorted(por_campo.items()):
             linha[f"conc_{campo}"] = f"{a}/{t}"
@@ -557,14 +669,20 @@ def cmd_comparar(_args):
             w = csv.DictWriter(f, fieldnames=campos, delimiter=";")
             w.writeheader(); w.writerows(dados)
 
-    print(f"{'cfg':<4}{'modelo':<14}{'modo':<7}{'transc':<9}{'lig':>4}{'entrada':>9}{'cache':>7}{'saida':>7}"
-          f"{'custo/lig':>11}{'geral%':>8}{'funil%':>8}")
+    print(f"{'cfg':<4}{'modelo':<14}{'modo':<15}{'transc':<9}{'lig':>4}{'entrada':>9}{'cache':>7}{'saida':>7}"
+          f"{'custo/lig':>11}{'geral%':>8}{'funil%':>8}{'P7P11%':>8}")
     for l in linhas:
-        print(f"{l['config']:<4}{l['modelo']:<14}{l['modo']:<7}{l['transcricao']:<9}{l['ligacoes_ok']:>4}"
+        print(f"{l['config']:<4}{l['modelo']:<14}{l['modo']:<15}{l['transcricao']:<9}{l['ligacoes_ok']:>4}"
               f"{l['tokens_entrada_por_lig']:>9}{l['tokens_cache_por_lig']:>7}{l['tokens_saida_por_lig']:>7}"
-              f"{str(l['custo_por_lig']):>11}{str(l['concordancia_geral_pct']):>8}{str(l['concordancia_funil_pct']):>8}")
+              f"{str(l['custo_por_lig']):>11}{str(l['concordancia_geral_pct']):>8}{str(l['concordancia_funil_pct']):>8}"
+              f"{str(l['concordancia_P7_P11_pct']):>8}")
+    extras = [l for l in linhas if l["ligacoes_com_P8_objecao"] != ""]
+    for l in extras:
+        print(f"  {l['config']}: sem gabarito, so contagem — P8 objecao em {l['ligacoes_com_P8_objecao']}, "
+              f"P10 promessa em {l['ligacoes_com_P10_promessa']}, P15 evento em {l['ligacoes_com_P15_evento']} ligacoes "
+              f"(conteudo em {RELATORIO_DETALHE.name})")
 
-    base = next((l for l in linhas if l["config"] == "C0"), None)
+    base = next((l for l in linhas if l["config"] == "C0"), None) or next((l for l in linhas if l["config"] == "C1"), None)
     if base and base["concordancia_geral_pct"] != "":
         custo = lambda l: l["custo_por_lig"] if l["custo_por_lig"] != "" else l["tokens_entrada_por_lig"] + 4 * l["tokens_saida_por_lig"]
         aptas = [l for l in linhas if l["ligacoes_ok"] == len(amostra) and l["pedidos_com_erro"] == 0
@@ -572,10 +690,10 @@ def cmd_comparar(_args):
                  and l["concordancia_funil_pct"] >= base["concordancia_funil_pct"]]
         if aptas:
             v = min(aptas, key=custo)
-            print(f"\nMais barata com concordancia >= C0 (gpt-4o como hoje): {v['config']} — {v['descricao']}")
-            print(f"  tokens/ligacao: {v['tokens_total_por_lig']} (C0: {base['tokens_total_por_lig']})")
+            print(f"\nMais barata com concordancia >= {base['config']} ({base['descricao']}): {v['config']} — {v['descricao']}")
+            print(f"  tokens/ligacao: {v['tokens_total_por_lig']} ({base['config']}: {base['tokens_total_por_lig']})")
         else:
-            print("\nNenhuma configuracao empatou ou superou o C0 em concordancia sem erro — ver relatorio_detalhe.csv.")
+            print(f"\nNenhuma configuracao empatou ou superou o {base['config']} em concordancia sem erro — ver relatorio_detalhe.csv.")
     print(f"\n-> {RELATORIO.name}, {RELATORIO_DETALHE.name} (sem transcricao — pode trazer de volta)")
     if any(d.get("simulado") for d in por_cfg.values()):
         print("ATENCAO: resultados SIMULADOS (sem API). Apague resultados.jsonl antes do teste real.")
