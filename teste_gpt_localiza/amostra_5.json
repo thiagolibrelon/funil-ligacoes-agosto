@@ -48,12 +48,21 @@
           "oportunidades_perdidas": "OP1",
           "valor_potencial_R$": "nenhum"
         },
+        "P7": {
+          "produtos_mencionados": "PR1",
+          "produtos_ofertados": "nenhum",
+          "janela_perdida": "NAO",
+          "produto_janela": "nenhum"
+        },
         "P9": {
           "tipo_abertura": "AB2",
           "usou_nome": "SIM",
           "tipo_fechamento": "FC3",
           "proximo_passo_claro": "NAO",
           "prazo_definido": "NAO"
+        },
+        "P11": {
+          "sinais": []
         }
       }
     },
@@ -101,12 +110,21 @@
           "oportunidades_perdidas": "OP3",
           "valor_potencial_R$": "0"
         },
+        "P7": {
+          "produtos_mencionados": "nenhum",
+          "produtos_ofertados": "nenhum",
+          "janela_perdida": "NAO",
+          "produto_janela": "nenhum"
+        },
         "P9": {
           "tipo_abertura": "AB1",
           "usou_nome": "NAO",
           "tipo_fechamento": "FC2",
           "proximo_passo_claro": "SIM",
           "prazo_definido": "NAO"
+        },
+        "P11": {
+          "sinais": []
         }
       }
     },
@@ -154,12 +172,21 @@
           "oportunidades_perdidas": "OP1",
           "valor_potencial_R$": "0"
         },
+        "P7": {
+          "produtos_mencionados": "nenhum",
+          "produtos_ofertados": "nenhum",
+          "janela_perdida": "NAO",
+          "produto_janela": "nenhum"
+        },
         "P9": {
           "tipo_abertura": "AB1",
           "usou_nome": "SIM",
           "tipo_fechamento": "FC1",
           "proximo_passo_claro": "SIM",
           "prazo_definido": "NAO"
+        },
+        "P11": {
+          "sinais": []
         }
       }
     },
@@ -207,12 +234,21 @@
           "oportunidades_perdidas": "OP1",
           "valor_potencial_R$": "0"
         },
+        "P7": {
+          "produtos_mencionados": "PR10",
+          "produtos_ofertados": "nenhum",
+          "janela_perdida": "NAO",
+          "produto_janela": "nenhum"
+        },
         "P9": {
           "tipo_abertura": "AB1",
           "usou_nome": "SIM",
           "tipo_fechamento": "FC3",
           "proximo_passo_claro": "SIM",
           "prazo_definido": "NAO"
+        },
+        "P11": {
+          "sinais": []
         }
       }
     },
@@ -260,12 +296,27 @@
           "oportunidades_perdidas": "OP6",
           "valor_potencial_R$": "0"
         },
+        "P7": {
+          "produtos_mencionados": "PR1",
+          "produtos_ofertados": "PR1",
+          "janela_perdida": "NAO",
+          "produto_janela": "nenhum"
+        },
         "P9": {
           "tipo_abertura": "AB2",
           "usou_nome": "SIM",
           "tipo_fechamento": "FC3",
           "proximo_passo_claro": "NAO",
           "prazo_definido": "NAO"
+        },
+        "P11": {
+          "sinais": [
+            {
+              "tipo_sinal": "IC3",
+              "concorrente_mencionado": "nenhum",
+              "vendedor_explorou": "NAO"
+            }
+          ]
         }
       }
     }
