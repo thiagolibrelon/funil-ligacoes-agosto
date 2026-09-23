@@ -1,0 +1,444 @@
+{
+ "_meta": {
+  "descricao": "Exemplos few-shot (config C8). Nenhum e das 5 ligacoes do teste. Trechos de transcricao anonimizados — nao versionar."
+ },
+ "exemplos": [
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P1-04 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P1"
+   ],
+   "trecho": "A: Oi [NOME], eu falo com o [NOME]?\nC: Alô? Isso?\nA: Oi [NOME], aqui é [NOME] da Localiza, tudo bem?\nC: Tudo bom até isso? Jóia.\nA: Tudo ótimo! Deixa eu te perguntar, você está próximo do computador?\nC: Eu já consegui fazer... Eu fiz as duas reservas...\nA: Ah, deixa eu ver, porque aqui para mim no sistema ainda não apareceu. Deixa eu confirmar\nC: Ué...\nA: no outro sistema, porque aqui no meu demora um pouquinho mais para cair\nC: Eu já recebi até os e-mails de confirmação e tudo...\nA: Aqui já apareceu aqui para mim as duas reservas do dia 12 até o dia 16 lá em [NOME].\nC: Isso...\nA: [NOME],\nC: Isso mesmo...\nA: maravilha! Perfeito então [NOME]! Qualquer dúvida ou se precisar de qualquer auxílio em relação a essas reservas pode me dar uma ligadinha ou então me chamar lá no [NOME]App que a gente vai conversando.\nC: Perfeito, então, [NOME]... Muito obrigado [NOME]?\nA: [NOME]! Obrigada [NOME]! Até mais!\nC: Até mais...",
+   "classificacao": {
+    "P1": "desfecho=fechou_novo | intencao_entrada=cliente_queria | tentativa_comercial=NAO | B: B8"
+   },
+   "motivo": "Vendedor liga para confirmar duas reservas ja feitas pelo cliente; confirmadas no sistema."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P1-01 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P1"
+   ],
+   "trecho": "A: Alô [NOME]?\nC: Só um minuto, viu? Peraí. Oi.\nA: Oi [NOME]. É [NOME]\nC: Oi,\nA: aqui\nC: [NOME].\nA: na Localiza, tudo bem?\nC: Tudo bem? Como vai?\nA: Tudo jóia, graças a Deus. Tudo bem também. Eu recebi aqui uma mensagem, né? Que você está precisando fazer uma locação, não é isso, [NOME]?\nC: Isso, isso. Estou\nA: Perfeito.\nC: precisando de um veículo para\nA: Ah...\nC: domingo ou segundo cedinho agora? Acho que domingo é melhor. Se você conseguir no domingo à noite ainda é melhor, porque eu viajo no segundo de madrugada. E\nA: Ah...\nC: aí um\nA: Sim.\nC: veículo, até esse veículo tem que ficar com a [NOME]-feira à noite da mesma semana, né? Do próximo semana agora. Ou mais tarde de\nA: você\nC: manhã.\nA: vai tirar esse veículo aonde, [NOME]?\nC: Juazeiro do [NOME].\nA: Jazeiro do [NOME], tá? Então, deixa eu te falar. Eu não consigo fazer a reserva aqui porque o sistema não me permite, mas a gente tem um portal corporativo que você consegue\nC: Certo.\nA: acessar para solicitar a reserva por lá. Só que eu estou verificando aqui quem tem o acesso a esse portal é o [NOME]. Leonardo [NOME]. Ele continua ainda na empresa?\nC: Ele é o [NOME], é o [NOME].\nA: Ah, sim. E aí, se ele puder liberar o seu acesso, né? Que aí fica mais fácil, porque aí você acessa lá e faz a reserva.\nC: Ele consegue liberar um acesso para mim, é isso?\nA: que eu vou fazer? Eu vou mandar uma mensagem para você lá no [NOME]Ap",
+   "classificacao": {
+    "P1": "desfecho=interessou_nao_fechou | intencao_entrada=cliente_queria | tentativa_comercial=SIM | B: nenhum"
+   },
+   "motivo": "Cliente tem demanda real de locacao para domingo; vendedor nao consegue reservar e encaminha liberacao de acesso ao portal."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P1-34 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P1"
+   ],
+   "trecho": "C: Alô? Hum, né?\nA: Localiza,\nC: Botar uma\nA: boa tarde.\nC: folha de... Boa tarde [NOME], por favor. Botar uma folhinha de papel toalha umedecida em cima dele. Bem molhadinha. É uma maneira. Boa tarde [NOME], por favor?\nA: Fala com o [NOME].\nC: Oi. Olá [NOME]. Eu me chamo [NOME], trabalho na [NOME] [NOME] aqui na [NOME], tudo bem?\nA: Tudo jóia, [NOME], e com você?\nC: Tudo bem. Eu estive numa pequena reunião com o [NOME], [NOME] [NOME], que trabalha com a [NOME] e ele é quem\nA: Uhum.\nC: estava à frente do contrato que a nossa empresa tem com a [NOME]. O nosso gerente aqui administrativo financeiro, eu sou secretária dele e\nA: Uhum.\nC: ele me pediu para que eu... Eu passasse a acompanhar esses dois contratos que a [NOME] tem com a [NOME]. Seu [NOME] me passou algumas informações aqui e a [NOME] ter um acompanhamento mais específico, ou seja, entender detalhamento desses dois contratos, porque não era o seu [NOME] que lidava com os dois contratos da [NOME], era uma outra pessoa, o [NOME] que já saiu da empresa há algum tempo atrás e [NOME] [NOME] ficou interinamente, porém ele tem uma demanda muito grande e tem assuntos que estão ainda parados e o [NOME] uma explicação melhor com relação a esses contratos. Então, o que a gente precisava, [NOME], é que a gente tenha acesso a esses dois contratos, ter acesso a essa plataforma de vocês para poder eu\nA: Uh-huh.\nC: acompanhar e entende",
+   "classificacao": {
+    "P1": "desfecho=nao_era_venda | intencao_entrada=cliente_queria | tentativa_comercial=NAO | B: nenhum"
+   },
+   "motivo": "Secretaria quer acesso a plataforma para acompanhar dois contratos; vendedora vai verificar seguranca da informacao."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P1-08 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P1"
+   ],
+   "trecho": "C: Oi [NOME]?\nA: Boa tarde [NOME]. Tudo\nC: Tudo certo?\nA: Tudo certo, [NOME]? Quem fala aqui é o [NOME], eu sou executivo de contas aqui da Localiza, responsável por gerir os contratos da [NOME] [NOME] de [NOME] e\nC: Certo.\nA: o pessoal me passou sua demanda mais cedo para a gente fazer a atualização do seu cadastro só para te informar que deu tudo certinho beleza já alterei o e-mail e também seu telefone de contato vou te dar um oi [NOME] caso você precise de algum contato mais rápido eu sou o executivo aqui responsável por gerir a conta me coloca à disposição também para ajudar vocês, beleza?\nC: Como é que eu vou acessar o portal aqui agora?\nA: Só um minutinho que eu já vou te mandar aí o passo a passo no seu [NOME]App agora. Vê se você\nC: [NOME].\nA: recebeu meu oi [NOME]\nC: [NOME].\nA: localiza com o [NOME] é o [NOME] acessar a parte da localiza empresas e o [NOME] acesso já vou te passar ele aqui agora\nC: Ok.\nA: Seu usuário é esse aí 652678 Aí a senha a gente precisa que seja redefinida, tá? Aí\nC: Certo.\nA: você vai naquela parte, esqueci minha senha, preenche com esse usuário e o e-mail que você pediu para fazer a alteração. Aí você vai\nC: Certo.\nA: colocar a senha nova, vai gerar um QR [NOME] para você fazer a biometria facial. Você pode fazer de qualquer telefone, não precisa ser necessariamente o seu aparelho telefone. E depois se você fizer essa biometria tiver tudo val",
+   "classificacao": {
+    "P1": "desfecho=fechou_renovacao | intencao_entrada=misto | tentativa_comercial=SIM | B: B8"
+   },
+   "motivo": "Alem de atualizar cadastro e portal, vendedor faz a prorrogacao do contrato por mais 30 dias com o numero informado."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P2-18 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P2"
+   ],
+   "trecho": "C: Ligou para [NOME] do Brasil para opções em português pressione 1 para inglês pressione 2 para falar com o [NOME] pressione 4 para falar com o [NOME] 5 para falar com o [NOME] 6 para falar com o [NOME], bom dia!\nA: Olá [NOME]. Aqui quem fala aqui é a [NOME], tudo bem?\nC: Tudo bem e você?\nA: Tudo bem? Eu queria por gentileza estar falando se possível com [NOME] e [NOME]?\nC: Só um minutinho que eu vou tentar transferir a ligação,\nA: Tá\nC: tá?\nA: bom, com quem eu falo?\nC: Ana [NOME]!\nA: Tá bom [NOME], obrigada!\nC: [NOME]! Alô!\nA: Alô [NOME], bom dia. Aqui quem fala aqui é da localiza com quem eu falo?\nC: [NOME]! Oi [NOME]! Bom dia!\nA: Oi [NOME]? Bom dia. [NOME], tô ligando para saber se tem alguma demanda de locação, se tá precisando alugar algum veículo?\nC: Você é da localiza [NOME] A [NOME] é isso?\nA: Isso!\nC: Ah, tá. Então, a gente... Eu fiz uma alocação pelo site mesmo na semana passada. Pegou... Foi pro diretor por 30 dias pegou da categoria do [NOME]. Ele pegou quarta-feira o carro?\nA: [NOME], ótimo. E aí também aproveitar... Ué, então foi enviado\nC: Não,\nA: no e-mail da [NOME]. Ela não está mais na empresa, né?\nC: [NOME], não?\nA: Foi enviada uma avaliação de atendimento prestado pela Localiza. Eu vou colocar aqui você como contato principal da empresa para que as próximas avaliações possam estar indo para você,\nC: Tá\nA: tá bom? De avaliação\nC: bom então!\nA: tanto de retir",
+   "classificacao": {
+    "P2": "tipo=onboarding | quem_iniciou=vendedor | tentativa_comercial=SIM"
+   },
+   "motivo": "Vendedor sonda demanda, atualiza contato principal para NPS e explica portal e renovacao automatica apos locacao recente pelo site."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P2-11 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P2"
+   ],
+   "trecho": "A: Localiza, [NOME].\nC: Bom dia [NOME]. [NOME]?\nA: Ei, [NOME], como você está? Tudo bem?\nC: Bom demais, né? Viu seu e-mail? Antes lá já... O criato já está 30 dias, né?\nA: Isso, isso mesmo. Agora, o que a gente precisa definir lá é que a BTEC, quando acontece mensalmente ali o... Bom, se teve cobrança de quilômetro excedente, vem na fatura, na parcial mês a mês, tá?\nC: Isso.\nA: Aí eu quero ver com você se a gente vai manter a mesma coisa para aquele ato.\nC: Vamos sim.\nA: Não, beleza, mas eu preciso que você me responda, porque aí eu vou pedir... A área responsável que faz precisa disso\nC: Ah,\nA: é documentado.\nC: tá.\nA: Você vai\nC: [NOME]\nA: responder aquele...\nC: mandou foi no e-mail?\nA: Mandei no e-mail, preciso lá\nC: Ah,\nA: no e-mail,\nC: tá! Então...\nA: olha lá.\nC: Tá! Depois eu vou olhar lá! Olha pra mim... Fiz uma reserva lá agora... Só que tá dando em\nA: Na\nC: confirmação! Fiz pra hoje deve ser... Tá muito em cima não?!\nA: criate?\nC: É!\nA: Tá.\nC: Fiz lá em confirmação!\nA: Eu olho, eu vou acionar a agência lá, pode ficar tranquilo.\nC: Ah!\nA: Pode ficar tranquilinho que eu aciono lá, tá?\nC: Eu vou olhar no e-mail lá então!\nA: Então tá\nC: lá e\nA: joia,\nC: responder!\nA: pode... Beleza então, eu aguardo, tá [NOME]?\nC: Ok então!\nA: Obrigada [NOME],\nC: [NOME],\nA: tchau [NOME].\nC: bom, tchau.\nA: Vou te encaminhar a pesquisa.\nC: Ok.",
+   "classificacao": {
+    "P2": "tipo=misto | quem_iniciou=cliente | tentativa_comercial=NAO"
+   },
+   "motivo": "Vendedor precisa definir manutencao da cobranca de km excedente para o novo contrato e ainda apura reserva em confirmacao."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P2-33 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P2"
+   ],
+   "trecho": "C: Olá [NOME] a [NOME]. Diz que um para falar no [NOME], dois para financeiro, três para contabilidade ou quatro para CPD? Moderna RH, boa tarde!\nA: Boa tarde [NOME]? É o [NOME] com quem eu falo?\nC: Oi [NOME]!\nA: Ana [NOME], estou ligando para entender se vocês estão com demanda de locação de veículos, como é que estão as coisas aí.\nC: [NOME], acredito que não, mas o meu condutor é RH e eu não sei nem pra quem eu te direcionaria em referente a isso?\nA: Normalmente eu conversava aí com o [NOME].\nC: Ah, então só um minutinho que eu vou te transferir para ele, tá?\nA: Tá. Oi [NOME], beleza?\nC: Oi [NOME].\nA: É o [NOME]?\nC: Oi [NOME], pois não.\nA: Eu estou ligando para entender se vocês têm demanda de locação de veículos, como é que está funcionando aí?\nC: Você fechou as portas para a empresa quando você disse que não podia mais fazer locação diária, só mensal. As\nA: Não,\nC: locações\nA: tá.\nC: continuam.\nA: Não, entendi. Eu vou ver se eu consigo liberar aqui com o [NOME], mas é muito difícil. É por conta da utilização que ela foi querendo ou não acima do que é lucrativo para a gente, entendeu?\nC: Entendi.\nA: Então tá bom. Obrigado [NOME]? Tchau [NOME]!",
+   "classificacao": {
+    "P2": "tipo=retencao | quem_iniciou=vendedor | tentativa_comercial=SIM"
+   },
+   "motivo": "Vendedor sonda demanda de cliente inativo; cliente reclama de restricao a locacao diaria e vendedor desestimula."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P3-32 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P3"
+   ],
+   "trecho": "A: Alisa [NOME], bom dia.\nC: Oi [NOME], tudo bem? Aqui o [NOME] da LCS.\nA: Ô [NOME], como vai? Quanto tempo? Tudo bem?\nC: Pois é, eu também você...\nA: Prazer em falar com [NOME], tudo bem também. Como eu posso te ajudar?\nC: Cristina precisava de uma ajuda com uma alocação e\nA: Claro,\nC: o que acontece? Eu estou alocando aqui no portal para retirar lá no aeroporto de [NOME], no domingo, e aí tem carros disponíveis só que eu queria ver se tinha um hatch. Você consegue me ajudar com isso?\nA: deixa eu verificar aqui, me fala qual que é o [NOME]?\nC: Então, a gente está... Eu estava querendo alocar para um contrato mensal, né? Só que lá estava dando erro. Então eu coloquei do dia 19 de 7 a 17 de 8\nA: Tá, deixa eu colocar. E aí, deixa eu... Esse grupo que você está tentando fazer a reserva,\nC: em\nA: [NOME], é para qual cidade?\nC: [NOME], para retirar no aeroporto de [NOME]\nA: Ah, entendi. O que acontece? Deixa eu abrir aqui para verificar também. Santarém é uma região que realmente tem essa questão de, em alguns momentos, a questão da disponibilidade. Porque é uma região mais assim... É onde está situado a questão de frota também. Embora o aeroporto é uma região... Embora sendo aeroporto a frota é maior [NOME] deixa eu só checar aqui. Você tem que fazer para outro modelo ou foi só para esse mesmo?\nC: Então, eu estava querendo para isso mesmo. [NOME], tipo assim, o pessoal que vai, ele",
+   "classificacao": {
+    "P3": "problemas=P10+P7 | quem_relatou=cliente | foi_resolvido=nao | escalou_para=0800"
+   },
+   "motivo": "Alocacao mensal em Santarem dava erro no portal e ha limitacao de disponibilidade na regiao; vendedor passa o 0800 da central de reservas."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P3-01 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P3"
+   ],
+   "trecho": "A: Alô?\nC: [NOME]?\nA: Isso tudo bem?\nC: Tudo e você? [NOME], boa tarde. É [NOME] que está falando.\nA: Tudo bem carolinho?\nC: Sim, tudo [NOME]. Obrigada [NOME].\nA: [NOME].\nC: A [NOME] me atende e ela está de férias pedindo para entrar em contato com você a respeito de um contrato que eu tenho é o [NOME]: Eu estou indo viajar na segunda-feira e fico até no final do mês. Eu queria que você me ajudasse a olhar, fazendo favor, a minha tarifa do meu contrato aí. Se compensa eu entregar o carro e pegar quando eu voltar ou ficar com o [NOME]?\nA: Entendi. É a [NOME] você tem\nC: É.\nA: aí? Entendi. Quanto tempo que você está com o [NOME]? Você pegou ali qual data?\nC: Espera aí só um pouquinho que eu vou entrar aqui para ir.\nA: Me passa o CNPJ do seu\nC: É,\nA: CNPJ?\nC: eu estou entrando aqui para pegar o... O sistema de jogo é... Nossa, só porque eu preciso não acho o CNPJ, peraí.\nA: Porque assim, se você já tiver mais de 15 dias com o [NOME], não compensa devolver. A não ser que você já\nC: Então,\nA: passou mais de 30 dias com o [NOME].\nC: lá já, eu já estou uns três meses com\nA: Me\nC: o carro.\nA: passa... Acho você no PJ?\nC: Não, estou procurando aqui, peraí. denuncia olho isso aí, pelo amor de Deus,\nA: Como é que eu te chamo no [NOME]App se você tiver essa demanda?\nC: gente. [NOME]?\nA: [NOME]\nC: Pode\nA: que\nC: ser?\nA: é o [NOME]?\nC: É 31\nA: 31...\nC: [MASKED]\nA: Boa tarde. É assim que você",
+   "classificacao": {
+    "P3": "problemas=nenhum | quem_relatou=nenhum | foi_resolvido=nenhum | escalou_para=nenhum"
+   },
+   "motivo": "Cliente so pede orientacao sobre devolver ou manter o carro na viagem, sem problema operacional."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P5-40 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P5"
+   ],
+   "trecho": "A: Locais da [NOME], bom dia.\nC: Oi [NOME], bom dia [NOME]? É a [NOME] aqui.\nA: Ei, [NOME], eu vou bem com você.\nC: Vou bem também. [NOME], não sei se você chegou a ver os e-mails que eu te mandei ontem?\nA: Não, na verdade eu vi e eu só não entendi muito bem porque a gente tinha feito uma cotação e\nC: Isso.\nA: aí depois você me mandou de retomar mas depois você pediu algumas informações aí eu prefiro tratar por ligação que eu acho que ficou um pouco mais fácil até para você me esclarecer você quer retomar a negociação ou você queria esclarecer algumas informações? Joyce\nC: É,\nA: sim\nC: no caso, a gente recebeu um e-mail, acho que foi de você mesmo,\nA: sim\nC: falando sobre essa possibilidade de mensal flexível.\nA: isso\nC: Eu queria entender como funciona para saber se compensa a gente ficar com esse ou o plano de 3 mil KMs mês, entendeu?\nA: Na verdade, [NOME], o seu caso é um pouquinho diferente porque a cotação que nós te passamos, se não me engano, já foi no mensal flexível, que é onde você poderia fazer o encerramento a partir de 30 dias a qualquer momento. Só que talvez a gente precisaria atualizar porque as cotações que nós fizemos foi no início de junho e a [NOME] atualização de preço. Posso constar qual é o [NOME] a gente consegue, mas como\nC: Tá.\nA: funcionaria nesse caso? Vou\nC: Aí\nA: te dar um exemplo, porque eu\nC: só\nA: tenho duas...\nC: uma dúvida: esse mensal flexíve",
+   "classificacao": {
+    "P5": "teve_challenger=SIM | qualidade=media | CH: CH5 | resultado_imediato=cliente_refletiu"
+   },
+   "motivo": "Cliente quer flexibilidade de encerramento; vendedor conecta a funcionalidade do mensal flexivel (sem multa a partir de 30 dias) e vai reenviar cotacao."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P5-24 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P5"
+   ],
+   "trecho": "A: Alô [NOME],\nC: Isso.\nA: [NOME]. Edson é a [NOME], tudo bem?\nC: tudo bem você?\nA: Muito bem também obrigada é o [NOME] o meu contato é só para sinalizar referente ao e-mail do [NOME] lá do da cobrança tá é ele formalizou por e-mail para vocês eu não sei se vocês viram ainda é sinalizando aí né o a sanção referente aos pagamentos que estão em aberto tá eu até tive uma reunião Então, é um contato com ele hoje mais cedo por ligação. E de fato já está assim na última instância mesmo, viu meu amigo? Caso o pagamento não aconteça em 24 horas, os casos vão ser bloqueados, tá? E o [NOME] é retomada mesmo. Então, assim, é só para reforçar com vocês mesmo, tá? Orientando se tiver a possibilidade do pagamento acontecer hoje para não acontecer isso aí. Isso, entendeu? Porque se burocracia, aí tem a questão do crédito depois. A gente está precisando aprovar limite e ampliação no outro CNPJ e isso pode prejudicar. [NOME]?\nC: Ok,\nA: Então,\nC: eu estou no rininho\nA: só...\nC: aqui agora, eu vou sumir o pessoal aqui.\nA: [NOME], por gentileza, porque assim, de fato está no limite máximo, não tem como. Eu até verifiquei com ele se tinha alguma possibilidade de aguardar mais um pouco, mas já tem um tempo que está acontecendo. Tem fatura vencendo bem mais do que 30 dias, né? Então já está no limite mesmo do que eles podem fazer. Então é\nC: Uhum.\nA: só para te orientar mesmo e verificar essa possib",
+   "classificacao": {
+    "P5": "teve_challenger=SIM | qualidade=media | CH: CH3+CH6 | resultado_imediato=cliente_refletiu"
+   },
+   "motivo": "Vendedor avisa que sem pagamento em 24h os carros serao bloqueados e que a inadimplencia prejudica a ampliacao de limite no outro CNPJ."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P5-01 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P5"
+   ],
+   "trecho": "A: Alô?\nC: [NOME]?\nA: Isso tudo bem?\nC: Tudo e você? [NOME], boa tarde. É [NOME] que está falando.\nA: Tudo bem carolinho?\nC: Sim, tudo [NOME]. Obrigada [NOME].\nA: [NOME].\nC: A [NOME] me atende e ela está de férias pedindo para entrar em contato com você a respeito de um contrato que eu tenho é o [NOME]: Eu estou indo viajar na segunda-feira e fico até no final do mês. Eu queria que você me ajudasse a olhar, fazendo favor, a minha tarifa do meu contrato aí. Se compensa eu entregar o carro e pegar quando eu voltar ou ficar com o [NOME]?\nA: Entendi. É a [NOME] você tem\nC: É.\nA: aí? Entendi. Quanto tempo que você está com o [NOME]? Você pegou ali qual data?\nC: Espera aí só um pouquinho que eu vou entrar aqui para ir.\nA: Me passa o CNPJ do seu\nC: É,\nA: CNPJ?\nC: eu estou entrando aqui para pegar o... O sistema de jogo é... Nossa, só porque eu preciso não acho o CNPJ, peraí.\nA: Porque assim, se você já tiver mais de 15 dias com o [NOME], não compensa devolver. A não ser que você já\nC: Então,\nA: passou mais de 30 dias com o [NOME].\nC: lá já, eu já estou uns três meses com\nA: Me\nC: o carro.\nA: passa... Acho você no PJ?\nC: Não, estou procurando aqui, peraí. denuncia olho isso aí, pelo amor de Deus,\nA: Como é que eu te chamo no [NOME]App se você tiver essa demanda?\nC: gente. [NOME]?\nA: [NOME]\nC: Pode\nA: que\nC: ser?\nA: é o [NOME]?\nC: É 31\nA: 31...\nC: [MASKED]\nA: Boa tarde. É assim que você",
+   "classificacao": {
+    "P5": "teve_challenger=NAO | qualidade=baixa | CH: nenhum | resultado_imediato=sem_reacao_visivel"
+   },
+   "motivo": "Vendedor da orientacao generica sobre a regra de 15/30 dias sem dado do contrato do cliente nem reacao visivel."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P9-07 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P9"
+   ],
+   "trecho": "A: Bom dia.\nC: Bom dia [NOME].\nA: Isso.\nC: Oi [NOME]. [NOME], tudo bem?\nA: Tudo bem, [NOME]? Fala comigo.\nC: Digo uma coisa que eu preciso da tua ajuda:\nA: Sim.\nC: Eu no dia 15, acho que foi do mês passado,\nA: Sim.\nC: eu tive um... Eu bati de raspão num carro lá em [NOME] e como tinha\nA: Sim.\nC: seguro total, a gente foi lá na localiza, o cara deu toda a indicação, eu vim aqui quando entreguei o carro, entreguei toda\nA: Sim.\nC: a documentação, fiz conforme foi indicado para fazer, né? E hoje essa pessoa me ligou e disse que... Para ele saber se tem alguém com quem ele pode falar na localiza, porque até agora ninguém disse nada para ele e ele não sabe para quem ele tem que perguntar\nA: Ah, não, tranquilo. O que acontece? Esse tipo de procedimento, ele fica com pós-venda que é o [NOME]. Eu posso passar o telefone de lá para ele, ele vai ligar na área de início, ele vai explicar, só que ele vai precisar uns dados seus, tipo cpf, CNPJ, para ele poder ver como é que está essa situação, tá? Então você tem que passar para ele pelo menos um CNPJ da empresa de vocês aí\nC: Tá,\nA: você quer anotar o telefone\nC: tá um minutinho só, deixa eu pegar um... Pode falar.\nA: é o 0800 [MASKED]\nC: [MASKED]\nA: aí vai falar na condutor de sinistro\nC: Aí\nA: tá\nC: aqui ele tá falando sinistro daí\nA: não vai falar que sinistro aí vai passar os aí vai explicar a mesma situação que você me explicou aqui\nC:",
+   "classificacao": {
+    "P9": "tipo_abertura=AB4 | tipo_fechamento=FC5 | proximo_passo_claro=SIM | prazo_definido=NAO"
+   },
+   "motivo": "Cliente traz o caso do sinistro; vendedor fecha com instrucoes claras (ligar 0800, passar CNPJ, falar condutor de sinistro)."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P9-03 (painel 7 avaliadores, FORTE)",
+   "prompts": [
+    "P9"
+   ],
+   "trecho": "C: [NOME]?\nA: Oi [NOME]. Bom dia [NOME].\nC: Oi,\nA: Tudo bem?\nC: [NOME], tudo bem e você?\nA: Bem também. Obrigada [NOME]. [NOME], eu estou ligando porque nós realizamos uma troca de e-mails um tempo atrás sobre um mensal fixo de três meses.\nC: Mm-hmm.\nA: E aí eu estou ligando para saber se você avaliou a proposta, se essa demanda ainda existe...\nC: Não, essa demanda foi cancelada pelo menos temporariamente, tá?\nA: Certo!\nC: A gente ainda está verificando se a gente vai fazer\nA: Certo!\nC: uma locação ou a compra de um veículo. Se a gente seguir\nA: Ah,\nC: por locação,\nA: certo!\nC: ainda não vai ser nem três meses, aí já passa o ter 30. Mas eu vou precisar ainda definir com a [NOME] e por enquanto eles ainda não têm essa resposta.\nA: Certo. Aqui no [NOME] à [NOME] a gente atende até 12 meses. Se for mais tempo, é através do localiza meu. Aí eu posso solicitar que eles enviem uma proposta\nC: Tá.\nA: para você também, pode ser?\nC: Pode, pode sim.\nA: Ah, então tá certo então. E aí qualquer dúvida a gente vai tratando.\nC: [NOME], então.\nA: Tá\nC: Aí eu vou\nA: bom?\nC: pedir\nA: [NOME]...\nC: para você fazer uma cotação diferenciada, que aí\nA: Claro.\nC: no caso são de [NOME], [NOME] ou até mesmo [NOME] da [NOME]. Não sei se vocês trabalham?\nA: A gente trabalha aqui no [NOME]-A-[NOME], as locações são feitas através do grupo conforme eu te enviei no\nC: Tá.\nA: material. Então a disponibilidade",
+   "classificacao": {
+    "P9": "tipo_abertura=AB1 | tipo_fechamento=FC2 | proximo_passo_claro=SIM | prazo_definido=NAO"
+   },
+   "motivo": "Vendedor abre citando a troca de e-mails sobre o mensal fixo; fecha dizendo que vai pedir ao Localiza Meu para contatar o cliente, sem prazo."
+  },
+  {
+   "origem": "Exemplos_ligacoes.xlsx/P9-19 (painel 7 avaliadores, OK)",
+   "prompts": [
+    "P9"
+   ],
+   "trecho": "A: Alô [NOME],\nC: Alô?\nA: boa tarde. É a\nC: Oi.\nA: Rosana da Localiza, tudo bem?\nC: Tudo bem?\nA: Tudo ótimo. Estou passando para poder me apresentar, [NOME]? Eu sou a nova executiva responsável pelo [NOME]\nC: [NOME]\nA: de\nC: bom.\nA: Serviços na Localiza na [NOME] [NOME].\nC: Eu precisava do teu contato mesmo, mas vamos fazer assim, tu consegue me ligar amanhã ali por umas 10 horas, mandar um [NOME]App para a gente ir te conhecendo\nA: Consigo. Vou te chamar aqui\nC: nesse\nA: no [NOME]App e aí\nC: mesmo\nA: amanhã\nC: número?\nA: na hora que você estiver disponível você me fala assim: Rosana pode me ligar e aí a gente\nC: [NOME]\nA: conversa\nC: bom.\nA: melhor você\nC: [NOME].\nA: precisa de ajuda aqui no [NOME] mesmo?\nC: Sim.\nA: Tá beleza então\nC: Ok,\nA: eu\nC: obrigado,\nA: vou te chamar aqui e amanhã então a gente volta a se falar\nC: querida.\nA: obrigada\nC: Tchau [NOME].\nA: tchau [NOME]",
+   "classificacao": {
+    "P9": "tipo_abertura=AB1 | tipo_fechamento=FC1 | proximo_passo_claro=SIM | prazo_definido=SIM"
+   },
+   "motivo": "Abre se apresentando como nova executiva; fecha com contato marcado para amanha as 10h via WhatsApp, com acao dos dois lados."
+  },
+  {
+   "origem": "agosto e250dd0b",
+   "prompts": [
+    "P6",
+    "P3"
+   ],
+   "trecho": "A: [NOME], entrando em contato para saber como estao as demandas, voces sumiram, nao tem locado?\nC: O servico esta mais por Sao Paulo ou Minas e a gente esta optando mais pelos outros veiculos mesmo.\nA: Esta utilizando o proprio de voces, ne?\nC: Isso.\nA: Da outra vez eu te falei de substituir a frota propria por locacoes anuais e voce falou que no momento nao tinha interesse, permanece?\nC: Isso, por enquanto sim.\nA: Entao combinado, cadastro atualizado, precisando estamos a disposicao. Vou pedir que fique em linha para avaliar o atendimento.",
+   "classificacao": {
+    "P6": {
+     "oportunidades_perdidas": [
+      "OP7"
+     ]
+    },
+    "P3": {
+     "problemas_identificados": [
+      "nenhum"
+     ]
+    }
+   },
+   "motivo": "Cliente parou de locar e migrou para frota propria (sinal de churn); vendedor aceita sem investigar o motivo nem propor alternativa = OP7. Pedir para ficar na linha e avaliar o atendimento NAO e P12 (P12 so quando o vendedor pede nota alta ou dita a nota)."
+  },
+  {
+   "origem": "agosto 79d24700",
+   "prompts": [
+    "P6",
+    "P7",
+    "P11",
+    "P15"
+   ],
+   "trecho": "A: Faz um tempinho que voces nao alugam conosco. Como estao as demandas?\nC: No momento a gente esta mais tranquilo, diminuiram as viagens.\nA: Hoje voces atuam com frota propria?\nC: Sim, temos frota propria. Quando tinha viagem com translado aereo a gente optava pela locacao.\nA: Entao ta bom. O cadastro segue ativo com limite de credito. Se surgir demanda, sigo a disposicao.",
+   "classificacao": {
+    "P6": {
+     "oportunidades_perdidas": [
+      "OP6"
+     ]
+    },
+    "P7": {
+     "produtos_mencionados": [
+      "PR1"
+     ],
+     "produtos_ofertados": [],
+     "janela_perdida": "SIM",
+     "produto_janela": "PR12"
+    },
+    "P11": {
+     "sinais": [
+      {
+       "tipo_sinal": "IC6",
+       "concorrente_mencionado": "nenhum",
+       "vendedor_explorou": "NAO"
+      },
+      {
+       "tipo_sinal": "IC4",
+       "concorrente_mencionado": "nenhum",
+       "vendedor_explorou": "NAO"
+      }
+     ]
+    },
+    "P15": {
+     "eventos": []
+    }
+   },
+   "motivo": "Vendedor sondou (IC6) e o cliente revelou frota propria (IC4), mas ele nao explorou: janela para gestao de frotas (PR12) perdida e upsell obvio nao tentado (OP6). Ligacao de rotina, sem evento raro."
+  },
+  {
+   "origem": "agosto 81c09e1c",
+   "prompts": [
+    "P11",
+    "P3",
+    "P8",
+    "P15"
+   ],
+   "trecho": "C: A gente fez uma cotacao agora recente, mas ficou acima, com valor ate acima da Movida, acabou que eu peguei pela Movida mensal.\nA: Entendi. Sua demanda foi diaria ou mensal? Me chama no WhatsApp que geralmente eu consigo uma negociacao melhor para manter voces aqui com a gente.\nC: Ta, tudo bem.\n[...]\nA: Outra coisa, voce recebeu uma avaliacao sobre o meu atendimento. Se voce puder avaliar vai me ajudar muito, estou precisando de umas notas boas aqui.\nC: Ta bom, pode deixar.",
+   "classificacao": {
+    "P11": {
+     "sinais": [
+      {
+       "tipo_sinal": "IC1",
+       "concorrente_mencionado": "movida",
+       "vendedor_explorou": "SIM"
+      },
+      {
+       "tipo_sinal": "IC3",
+       "concorrente_mencionado": "movida",
+       "vendedor_explorou": "SIM"
+      }
+     ]
+    },
+    "P3": {
+     "problemas_identificados": [
+      "P12"
+     ],
+     "quem_relatou": "vendedor_detectou",
+     "foi_resolvido_na_ligacao": "NAO"
+    },
+    "P8": {
+     "objecoes": [
+      {
+       "tipo_objecao": "OB1",
+       "resposta_vendedor_codigo": "R4",
+       "eficacia": "media",
+       "desfecho_da_objecao": "adiada"
+      }
+     ]
+    },
+    "P15": {
+     "eventos": [
+      {
+       "categoria": "R3",
+       "impacto_potencial": "medio"
+      }
+     ]
+    }
+   },
+   "motivo": "Cliente cita a Movida e ja migrou por preco (IC1+IC3, R3); vendedor se posiciona como aliado para negociar (R4). Pedir 'notas boas' na pesquisa e P12."
+  },
+  {
+   "origem": "agosto ca215277",
+   "prompts": [
+    "P8",
+    "P11",
+    "P15"
+   ],
+   "trecho": "A: O que voces estao precisando agora para o mes de agosto para a gente voltar a fazer parceria?\nC: A gente sempre cota com voces, mas voces nao estao com precos condizentes. A gente cota com outros lugares e fica tipo 40% mais barato. E por isso que a gente nao esta alugando com a Localiza.\nA: Nao, entendo. Quando surgir uma nova demanda, entra em contato comigo que ai eu olho para voce.",
+   "classificacao": {
+    "P8": {
+     "objecoes": [
+      {
+       "tipo_objecao": "OB1",
+       "resposta_vendedor_codigo": "R5",
+       "eficacia": "baixa",
+       "desfecho_da_objecao": "perdida"
+      }
+     ]
+    },
+    "P11": {
+     "sinais": [
+      {
+       "tipo_sinal": "IC5",
+       "concorrente_mencionado": "nenhum",
+       "vendedor_explorou": "NAO"
+      }
+     ]
+    },
+    "P15": {
+     "eventos": [
+      {
+       "categoria": "R3",
+       "impacto_potencial": "alto"
+      }
+     ]
+    }
+   },
+   "motivo": "Objecao de preco explicita (OB1) e o vendedor capitula sem explorar (R5). Comparacao com outras locadoras sem citar nome = IC5. Cliente ja aluga fora por preco = R3."
+  },
+  {
+   "origem": "agosto 5bd0dd3f",
+   "prompts": [
+    "P10",
+    "P1"
+   ],
+   "trecho": "C: Diario vai ser so ate sabado.\nA: Voce quer retirar hoje ainda? So um minutinho. Vou solicitar aqui o credito e te dou um oi no WhatsApp, e ai ja te aviso: sendo aprovado, eu ja te ligo e a gente faz a reserva, pode ser?\nC: Pode ser, vou ficar aguardando.",
+   "classificacao": {
+    "P10": {
+     "promessas": [
+      {
+       "tipo_promessa": "PM5",
+       "prazo_prometido": "hoje",
+       "risco_nao_cumprimento": "medio"
+      },
+      {
+       "tipo_promessa": "PM3",
+       "prazo_prometido": "hoje",
+       "risco_nao_cumprimento": "medio"
+      }
+     ]
+    },
+    "P1": {
+     "desfecho": "interessou_nao_fechou",
+     "intencao_entrada": "cliente_queria"
+    }
+   },
+   "motivo": "Vendedor promete pedir o credito internamente (PM5) e ligar de volta (PM3) no mesmo dia. Cliente quer locar hoje e a reserva depende de aprovacao = interessou_nao_fechou (nao e nao_era_venda)."
+  },
+  {
+   "origem": "agosto a8bbe59c",
+   "prompts": [
+    "P10"
+   ],
+   "trecho": "A: Eu vou fazer o seguinte, eu vou ver com o responsavel do suporte de reserva se eles conseguem fazer a alteracao. Voce tem a CNH do condutor que voce quer colocar?\nC: Tem.\nA: Me manda no WhatsApp que eu vou entrar em contato com eles.",
+   "classificacao": {
+    "P10": {
+     "promessas": [
+      {
+       "tipo_promessa": "PM4",
+       "prazo_prometido": "nao definido",
+       "risco_nao_cumprimento": "medio"
+      }
+     ]
+    }
+   },
+   "motivo": "Vendedor encaminha para outra area (PM4) sem prazo."
+  },
+  {
+   "origem": "agosto 34a3483f",
+   "prompts": [
+    "P15"
+   ],
+   "trecho": "C: Eu fiz a contratacao inicial, mas isso fica normalmente com o financeiro, eles que tem acesso e fazem o controle. Posso te indicar a pessoa que mexe com isso para voce confirmar com ela.\nA: Por favor, ate para a gente poder atualizar aqui tambem.",
+   "classificacao": {
+    "P15": {
+     "eventos": [
+      {
+       "categoria": "R4",
+       "impacto_potencial": "baixo"
+      }
+     ]
+    }
+   },
+   "motivo": "Cliente apresenta outro contato da empresa (R4), impacto baixo."
+  },
+  {
+   "origem": "agosto 92f0f4d4",
+   "prompts": [
+    "P15",
+    "P6"
+   ],
+   "trecho": "A: Eu vi que a empresa alugava e deixou de alugar. Queria entender se acabou a demanda, se a empresa comprou um veiculo.\nC: Nao, na verdade foi comprado. Por isso nao ia ter demanda mais.\nA: Mas vai ter alguma outra demanda futura?\nC: A principio nao.\nA: Ta bom. Lembrando que na locacao mensal voce pode incluir varios condutores adicionais sem pagar mais por isso.",
+   "classificacao": {
+    "P15": {
+     "eventos": [
+      {
+       "categoria": "R2",
+       "impacto_potencial": "medio"
+      }
+     ]
+    },
+    "P6": {
+     "oportunidades_perdidas": [
+      "nenhuma"
+     ]
+    }
+   },
+   "motivo": "Cliente encerra a demanda por ter comprado veiculo = churn declarado (R2). Vendedor investigou o motivo e ainda apresentou beneficio do mensal, entao nao ha oportunidade perdida."
+  },
+  {
+   "origem": "agosto 093b3e87",
+   "prompts": [
+    "P7",
+    "P1"
+   ],
+   "trecho": "A: Fala para ela que eu mandei uma mensagem no WhatsApp da acao sobre o contrato que esta em aberto. Essa acao vai so ate hoje. Caso ela tenha interesse, uma protecao a mais que a empresa esta disponibilizando, e nem precisa encerrar o contrato, so que e valido somente ate hoje.\nC: Ta bom, eu vou pedir pra ela olhar.",
+   "classificacao": {
+    "P7": {
+     "produtos_mencionados": [
+      "PR4"
+     ],
+     "produtos_ofertados": [
+      "PR4"
+     ],
+     "janela_perdida": "NAO"
+    },
+    "P1": {
+     "desfecho": "interessou_nao_fechou",
+     "B": [
+      "B6",
+      "B8"
+     ]
+    }
+   },
+   "motivo": "Vendedor oferece protecao adicional (PR4) com prazo real da campanha (B6) numa ligacao que ele iniciou (B8)."
+  }
+ ]
+}
