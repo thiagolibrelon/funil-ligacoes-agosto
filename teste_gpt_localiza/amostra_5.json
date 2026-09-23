@@ -1,0 +1,273 @@
+{
+  "_meta": {
+    "fonte_gabarito": "agosto_grvin/gemini/CONSOLIDADO.csv (gemini-2.5-flash pago, agosto/2026)",
+    "total": 5
+  },
+  "ligacoes": [
+    {
+      "cd_segmento": "4522d50a-5457-4715-bbf9-26324621c43d",
+      "perfil": "venda que fechou, sem problema",
+      "data": "2026-08-06",
+      "direcao": "Outbound",
+      "transcricao_limpa": "CLIENTE: Ah, beleza? | AGENTE: Alô, boa tarde. Eu falo com Anderson. | CLIENTE: Isso, eu mesmo. | AGENTE: Oi, Anderson. Aqui é Bruna da Localiza, tudo bem? | CLIENTE: Oi Bruna, tudo bem e você? | AGENTE: Eu também estou bem, graças a Deus. | CLIENTE: Então | AGENTE: Anderson, | CLIENTE: já vai | AGENTE: eu sou a gerente responsável pelo atendimento aí da Verona, né? Aqui junto à Localiza para locação de veículos. | CLIENTE: certo | AGENTE: Vi | CLIENTE: certo | AGENTE: que vocês fizeram o cadastro, né? Aí para as locações, então estou entrando em contato para me apresentar, me colocar à disposição e também entender um pouquinho aí como é a demanda de locação de vocês, o que vocês estão precisando nesse primeiro momento? | CLIENTE: Ah, tá. Nós somos uma empresa metalúrgica, né? Nós fabricamos reservatórios metálicos e | AGENTE: Uhum! | CLIENTE: nós pegamos uma obra em outro estado, no estado de Minas aí, né? Nós somos de São Paulo e a gente tá com quatro colaboradores trabalhando na obra, né? Então eles ficam na obra aí por volta de 20 a 25 dias e aí eles regressam aqui pra cidade pra descansar uns dias E aí eles voltam novamente. E devido à distância e os custos, a gente decidiu, ao invés de usar os carros próprios, alugar. Ficaria mais barato, compensaria mais essa empresa. | AGENTE: Entendi. Sim, | CLIENTE: E aí | AGENTE: legal. | CLIENTE: daí eu fiz o cadastro, eu até fiz um pedido de locação já. | AGENTE: Ah, já fez? | CLIENTE: Fiz agora de manhã um pedido, porque o pessoal vai vir embora na terça-feira, né? Vai ficar uma semana | AGENTE: Ah, | CLIENTE: o carro aqui e volta na próxima segunda. | AGENTE: acabei de ver aqui. | CLIENTE: Isso. | AGENTE: Tá ótimo então. Esse número aqui que a gente está se falando, ele é WhatsApp também? | CLIENTE: Também o atrapa. | AGENTE: Tá, vou te mandar um oi lá. Assim você já fica com meu contato. Você tem alguma dúvida, precisando de alguma orientação e aí você já consegue falar direto comigo? | CLIENTE: Ah, perfeito então, Bruno. Muito obrigado, viu? | AGENTE: Imagina Anderson uma ótima | CLIENTE: Até | AGENTE: tarde! | CLIENTE: logo, até logo também. Tchau, tchau. | AGENTE: Obrigada, tchau, tchau.",
+      "gabarito_gemini": {
+        "P1": {
+          "desfecho": "fechou_novo",
+          "intencao_entrada": "vendedor_puxou",
+          "tentativa_comercial": "desconhecido",
+          "B1": "SIM",
+          "B2": "NAO",
+          "B3": "NAO",
+          "B4": "NAO",
+          "B5": "NAO",
+          "B6": "NAO",
+          "B7": "NAO",
+          "B8": "NAO",
+          "B9": "NAO",
+          "B10": "NAO"
+        },
+        "P2": {
+          "tipo": "nova_venda",
+          "subtipo": "primeiro_contato",
+          "quem_iniciou": "vendedor_puxou",
+          "tentativa_comercial": "SIM"
+        },
+        "P3": {
+          "problemas_identificados": "nenhum",
+          "quem_relatou": "nenhum",
+          "foi_resolvido_na_ligacao": "nenhum",
+          "escalou_para": "nenhum"
+        },
+        "P5": {
+          "teve_challenger": "NAO",
+          "codigos_challenger": "nenhum",
+          "resultado_imediato": "sem_reacao_visivel",
+          "qualidade": "baixa"
+        },
+        "P6": {
+          "oportunidades_perdidas": "OP1",
+          "valor_potencial_R$": "nenhum"
+        },
+        "P9": {
+          "tipo_abertura": "AB2",
+          "usou_nome": "SIM",
+          "tipo_fechamento": "FC3",
+          "proximo_passo_claro": "NAO",
+          "prazo_definido": "NAO"
+        }
+      }
+    },
+    {
+      "cd_segmento": "3bb2a5b8-f6c4-41e4-8a74-d16731238b97",
+      "perfil": "venda com problema (reserva presa)",
+      "data": "2026-08-12",
+      "direcao": "Outbound",
+      "transcricao_limpa": "AGENTE: Oi, | CLIENTE: Oi Bruna! | AGENTE: Alex, | CLIENTE: Tudo | AGENTE: tudo bom? | CLIENTE: jóia? Tudo você? | AGENTE: Tudo bem também, graças a Deus. | CLIENTE: Amigo, vamos atar aí a nossa conversa porque pelo WhatsApp não rola não eu estou precisando de uma certa | AGENTE: Tá. | CLIENTE: agilidade nisso aqui porque eu mandei os documentos aí para você eu | AGENTE: Uhum, | CLIENTE: precisava ver | AGENTE: Marcelo. | CLIENTE: se você consegue resolver isso para mim e já tenha um segundo plano caso não consiga porque esses carros precisam ser alugados e eu preciso mandar para o cliente hoje isso Entendeu? Quando eu mandei lá, apareceu uma reserva pendente de aprovação. Ele já me mandou uma mensagem. Eu | AGENTE: Tá. | CLIENTE: preciso da confirmação, | AGENTE: Isso. | CLIENTE: Alex. Então, eu preciso fazer isso. Os meninos já estão em viagem. Se chegar lá e não tiver carro, nós já precisamos de um plano B, minha amiga. Você consegue dar atenção nisso urgente? | AGENTE: Não, sim, eu falei para a Camila. Eu vou mandar agora, né? Para assinar o termo SCR e vou encaminhar de novo para ele e vou solicitar prioridade. Eu não lembro se quando a gente começou a conversar, se você tinha falado que tinha outro CNPJ ou se era só esse mesmo? Só | CLIENTE: Não, só isso. | AGENTE: esse mesmo, | CLIENTE: Só, | AGENTE: né? | CLIENTE: só. | AGENTE: Tá ótimo. Vou mandar agora já para você e... E aí já te aviso, eu tenho que mandar. | CLIENTE: Caso faça de tudo para dar | AGENTE: Tá, | CLIENTE: certo, por favor. Caso não dê, eu preciso de uma segunda opção para entender o que daria para fazer. | AGENTE: tá ok, eu já te encaminho. | CLIENTE: Pode ir mandando para Camila ou | AGENTE: Tá | CLIENTE: então você me liga para a gente resolver por telefone que é mais rápido. | AGENTE: bom então, Alex, | CLIENTE: Obrigado | AGENTE: obrigada. | CLIENTE: Bruno, | AGENTE: Tchau! | CLIENTE: tchau!",
+      "gabarito_gemini": {
+        "P1": {
+          "desfecho": "interessou_nao_fechou",
+          "intencao_entrada": "cliente_queria",
+          "tentativa_comercial": "SIM",
+          "B1": "NAO",
+          "B2": "NAO",
+          "B3": "NAO",
+          "B4": "NAO",
+          "B5": "NAO",
+          "B6": "NAO",
+          "B7": "NAO",
+          "B8": "NAO",
+          "B9": "NAO",
+          "B10": "NAO"
+        },
+        "P2": {
+          "tipo": "suporte_operacional",
+          "subtipo": "reserva_pendente",
+          "quem_iniciou": "cliente",
+          "tentativa_comercial": "SIM"
+        },
+        "P3": {
+          "problemas_identificados": "P10",
+          "quem_relatou": "cliente",
+          "foi_resolvido_na_ligacao": "NAO",
+          "escalou_para": "nao_escalou"
+        },
+        "P5": {
+          "teve_challenger": "NAO",
+          "codigos_challenger": "nenhum",
+          "resultado_imediato": "sem_reacao_visivel",
+          "qualidade": "baixa"
+        },
+        "P6": {
+          "oportunidades_perdidas": "OP3",
+          "valor_potencial_R$": "0"
+        },
+        "P9": {
+          "tipo_abertura": "AB1",
+          "usou_nome": "NAO",
+          "tipo_fechamento": "FC2",
+          "proximo_passo_claro": "SIM",
+          "prazo_definido": "NAO"
+        }
+      }
+    },
+    {
+      "cd_segmento": "d8cb0363-2e49-43d9-a617-cf9fe82dee58",
+      "perfil": "nao venda com problema (fatura vencida)",
+      "data": "2026-08-14",
+      "direcao": "Outbound",
+      "transcricao_limpa": "AGENTE: Alô, avaria Angélica? | CLIENTE: Isso? | AGENTE: É Flávia da Localiza, tudo bem? | CLIENTE: Tudo de você, Flávia? | AGENTE: Eu também vou bem, obrigada. Você | CLIENTE: Então, | AGENTE: me... | CLIENTE: eu estava até abrindo o... Na web page agora para ver como é que ficou. | AGENTE: Você lembra que eu tinha te pedido agora que eu estou olhando aqui a fatura está vencida? Lembra que eu tinha te pedido para você me ligar na segunda para me lembrar? E você está me ligando hoje, então hoje que eu vou verificar por quanto tempo que eu consigo prorrogar essa fatura? | CLIENTE: Então, você consegue por favor ver para mim de eu não ter a cobrança pelo atraso e dizer | AGENTE: Sim. | CLIENTE: se consegue colocar um tempinho para frente? | AGENTE: Sim, isso eu consigo sim. | CLIENTE: Tá bom? | AGENTE: Ela venceu dia 9 do 8 hoje já são [MASKED] nós já tem cinco dias era que eu conseguiria colocar ela para hoje sem juros deixa eu ver aqui com o meu financeiro o que eu vou conseguir fazer mas e eu vou te mostrando e vou te falando aqui no whatsapp o que eu consegui pelo mais | CLIENTE: Tá | AGENTE: tempo tá | CLIENTE: bom, legal, te agradeço. | AGENTE: Que isso? Precisando, pode me chamar aqui. | CLIENTE: Tá bom, obrigada, Sônia. | AGENTE: Por nada, um abraço, tchau, | CLIENTE: Tudo | AGENTE: tchau. | CLIENTE: especial.",
+      "gabarito_gemini": {
+        "P1": {
+          "desfecho": "nao_era_venda",
+          "intencao_entrada": "cliente_queria",
+          "tentativa_comercial": "NAO",
+          "B1": "NAO",
+          "B2": "NAO",
+          "B3": "NAO",
+          "B4": "NAO",
+          "B5": "NAO",
+          "B6": "NAO",
+          "B7": "NAO",
+          "B8": "NAO",
+          "B9": "NAO",
+          "B10": "NAO"
+        },
+        "P2": {
+          "tipo": "cobranca",
+          "subtipo": "fatura_aberta",
+          "quem_iniciou": "cliente",
+          "tentativa_comercial": "NAO"
+        },
+        "P3": {
+          "problemas_identificados": "P2",
+          "quem_relatou": "cliente",
+          "foi_resolvido_na_ligacao": "PARCIAL",
+          "escalou_para": "nao_escalou"
+        },
+        "P5": {
+          "teve_challenger": "NAO",
+          "codigos_challenger": "nenhum",
+          "resultado_imediato": "sem_reacao_visivel",
+          "qualidade": "baixa"
+        },
+        "P6": {
+          "oportunidades_perdidas": "OP1",
+          "valor_potencial_R$": "0"
+        },
+        "P9": {
+          "tipo_abertura": "AB1",
+          "usou_nome": "SIM",
+          "tipo_fechamento": "FC1",
+          "proximo_passo_claro": "SIM",
+          "prazo_definido": "NAO"
+        }
+      }
+    },
+    {
+      "cd_segmento": "44543c13-a5e8-43e1-9cb0-ffb5156afa34",
+      "perfil": "nao venda sem problema (visita de rotina)",
+      "data": "2026-08-25",
+      "direcao": "Outbound",
+      "transcricao_limpa": "CLIENTE: Alô? | AGENTE: Alô, Alexandra? | CLIENTE: Isso? | AGENTE: Oi, | CLIENTE: Bom | AGENTE: Alexandra. | CLIENTE: dia. | AGENTE: Bom dia, Grazi da Localiza. Tudo bem com você? | CLIENTE: Tudo e você? | AGENTE: Bem, amor, obrigada por perguntar. | CLIENTE: Não, | AGENTE: Alexandra, estou entrando em contato porque vocês estão aí no meu plano de visita desse mês, tá? Para eu saber se está tudo ok com as locações, se vocês estão precisando de algum auxílio, se tem aí alguma demanda prevista para os próximos dias? | CLIENTE: tá tudo tranquilo. | AGENTE: Eu vi que vocês tiveram uma locação aí no mês passado, né? | CLIENTE: Sim. Agora está mais claro, porque já entrou todas as obras, né? | AGENTE: Ah sim! | CLIENTE: Então os trânsitos todos já foram feitos. Agora está | AGENTE: Entendi! | CLIENTE: para as próximas obras que entrarem. | AGENTE: Amém! Vocês continuam | CLIENTE: Sim, | AGENTE: alocando ali com o contrato do meu carro por assinatura? | CLIENTE: renovamos esse ano novamente. | AGENTE: Ah | CLIENTE: Aí o senhor Nelson pegou outro carro. | AGENTE: ótimo! Não então perfeito então e continua sendo somente você a responsável aqui mesmo né? Tá, | CLIENTE: Sim, | AGENTE: combinado então. Então cadastro | CLIENTE: sim. | AGENTE: tá | CLIENTE: Tá bom? | AGENTE: ok, tá deixando eu sigo à disposição, tá ok? | CLIENTE: Tá bom, qualquer coisa eu posso deixar | AGENTE: Pode | CLIENTE: que eu te procuro. | AGENTE: procurar assim, viu? Eu vou pedir só que você fique em linha para avaliar o meu atendimento com | CLIENTE: Tá | AGENTE: você, tá? | CLIENTE: bom, né? Muito obrigada, viu? | AGENTE: Eu | CLIENTE: Pela atenção. | AGENTE: que agradeço, que é isso eu que agradeço | CLIENTE: Pra | AGENTE: um excelente dia para você tchau tchau | CLIENTE: você também, tchau, tchau.",
+      "gabarito_gemini": {
+        "P1": {
+          "desfecho": "nao_era_venda",
+          "intencao_entrada": "vendedor_puxou",
+          "tentativa_comercial": "NAO",
+          "B1": "NAO",
+          "B2": "NAO",
+          "B3": "SIM",
+          "B4": "NAO",
+          "B5": "NAO",
+          "B6": "NAO",
+          "B7": "NAO",
+          "B8": "SIM",
+          "B9": "NAO",
+          "B10": "NAO"
+        },
+        "P2": {
+          "tipo": "pos_venda_manutencao",
+          "subtipo": "satisfacao",
+          "quem_iniciou": "vendedor",
+          "tentativa_comercial": "NAO"
+        },
+        "P3": {
+          "problemas_identificados": "nenhum",
+          "quem_relatou": "nenhum",
+          "foi_resolvido_na_ligacao": "nenhum",
+          "escalou_para": "nenhum"
+        },
+        "P5": {
+          "teve_challenger": "NAO",
+          "codigos_challenger": "nenhum",
+          "resultado_imediato": "sem_reacao_visivel",
+          "qualidade": "baixa"
+        },
+        "P6": {
+          "oportunidades_perdidas": "OP1",
+          "valor_potencial_R$": "0"
+        },
+        "P9": {
+          "tipo_abertura": "AB1",
+          "usou_nome": "SIM",
+          "tipo_fechamento": "FC3",
+          "proximo_passo_claro": "SIM",
+          "prazo_definido": "NAO"
+        }
+      }
+    },
+    {
+      "cd_segmento": "00f0c8bb-2f4c-483c-b265-198461ff01e2",
+      "perfil": "venda com Challenger de qualidade alta",
+      "data": "2026-08-28",
+      "direcao": "Outbound",
+      "transcricao_limpa": "AGENTE: Oi, Cláudio, boa tarde. | CLIENTE: Sim, Natália. | AGENTE: Meu nome é Luma, eu sou executiva de contas aqui da Localiza Rente Acar. Tudo bom com você? | CLIENTE: Tudo bom. | AGENTE: Ótimo. Estou entrando em contato porque foi cadastrada a empresa Lucena Serviços e | CLIENTE: Como você | AGENTE: como | CLIENTE: é, né? | AGENTE: eu sou | CLIENTE: Uhum. | AGENTE: a executiva responsável, primeiramente gostaria de te dar boas-vindas à Localiza, tá? | CLIENTE: Uhum. Obrigado. | AGENTE: Você já conhecia a Localiza antes? Já alocou alguma vez? | CLIENTE: Eu há cinco anos, eu localo a carta da 6 toda semana. | AGENTE: Hum, | CLIENTE: Porque | AGENTE: interessante. | CLIENTE: oito anos nessa trabalhando na bairro... | AGENTE: Ah, legal. Aí você | CLIENTE: Você | AGENTE: colocava | CLIENTE: tem | AGENTE: lá | CLIENTE: curado? | AGENTE: no PF ou era PJ? | CLIENTE: Não, sempre PF Eu | AGENTE: Hum, | CLIENTE: abri | AGENTE: interessante. | CLIENTE: o cadastro agora porque surge um outro trabalho Provavelmente eu preciso da PJ, colocar na PJ | AGENTE: Ah, | CLIENTE: Entendeu? | AGENTE: legal. Interessante. Perfeito. Então era só para saber se você já conhecia como funciona e tudo certinho. | CLIENTE: E com | AGENTE: Beleza. | CLIENTE: isso bem | AGENTE: Perfeito, então. Cláudio, e a sua empresa? Eu gostaria de conhecer melhor a sua empresa, a Lucena Serviços? Seria | CLIENTE: Segurança | AGENTE: qual o ramo de atuação? Como eu posso ajudar? | CLIENTE: Segurança | AGENTE: Segurança? Sim. E você já tem alguma demanda de veículo que eu posso te ajudar ou você cadastrou por uma demanda futura? | CLIENTE: Não, futura porque... Eu falei já até com a colega tua aí. Porque eu | AGENTE: Ah, | CLIENTE: estou fechando um contrato né? Não fechei ainda só que eu estou me antecipando né? | AGENTE: não, | CLIENTE: Entendeu? | AGENTE: certo, certíssimo. | CLIENTE: Tá bom? | AGENTE: Beleza, fechou. Então, vou fazer o seguinte, eu vou te dar um oi no WhatsApp para você | CLIENTE: Uhum... | AGENTE: ter o meu contato. Caso você | CLIENTE: Uhum... | AGENTE: tenha alguma dúvida, precise de um suporte, eu fico à disposição, tá? | CLIENTE: Tá bom! | AGENTE: As meninas comentaram com você sobre | CLIENTE: Eu | AGENTE: o nosso site do WebCorp ou não? | CLIENTE: fiz o cadastro por lá né? Não foi? | AGENTE: Não, acho que você fez pelo site, é porque a gente também tem | CLIENTE: Não, | AGENTE: o | CLIENTE: mas | AGENTE: WebCorp | CLIENTE: aparece o Abicorp. Apareceu para mim o Abicorp sim. | AGENTE: Apareceu? | CLIENTE: Apareceu? | AGENTE: E você já chegou a fazer a redefinição de senha? Primeira redefinição ou não? | CLIENTE: Fiz tudo já, já fiz tudo? | AGENTE: Ah, então eu acredito que já esteja aí meio caminho andado Perfeito | CLIENTE: Não, tá pronto. | AGENTE: então Perfeito | CLIENTE: Tá tudo certo. Tá? | AGENTE: Perfeito Cláudio Então vou adicionar você aqui no WhatsApp Eu te mandei um oi Qualquer dúvida eu fico à disposição, viu? | CLIENTE: Então eu só te dizer uma coisa, só para | AGENTE: Não, | CLIENTE: cultura lucerna... Você denuncia ouviu essa palavra né? | AGENTE: primeira vez | CLIENTE: Então, é uma cidade da Suíça e também ela é aquela lâmpada do Aladim chama-se | AGENTE: Ah! | CLIENTE: Lucerna e | AGENTE: Ah, legal! | CLIENTE: ela é o símbolo da inteligência militar do exército | AGENTE: Ah, | CLIENTE: ok | AGENTE: legal! Interessante! | CLIENTE: só | AGENTE: Interessante! | CLIENTE: para conhecimento tá | AGENTE: Beleza | CLIENTE: bom | AGENTE: então, Cláudio precisando ficar à disposição. Pode me chamar lá no WhatsApp, | CLIENTE: obrigado | AGENTE: viu? | CLIENTE: tudo de bom tá | AGENTE: Ótimo | CLIENTE: bom trabalho para | AGENTE: para | CLIENTE: você | AGENTE: você também. Ótima tarde. Se puder avaliar meu atendimento, agradeço muito, | CLIENTE: ok | AGENTE: viu? Até mais! | CLIENTE: obrigado tchau | AGENTE: Tchau, tchau! | CLIENTE: tchau pode deixar",
+      "gabarito_gemini": {
+        "P1": {
+          "desfecho": "interessou_nao_fechou",
+          "intencao_entrada": "misto",
+          "tentativa_comercial": "SIM",
+          "B1": "SIM",
+          "B2": "NAO",
+          "B3": "NAO",
+          "B4": "NAO",
+          "B5": "NAO",
+          "B6": "NAO",
+          "B7": "NAO",
+          "B8": "NAO",
+          "B9": "NAO",
+          "B10": "NAO"
+        },
+        "P2": {
+          "tipo": "onboarding",
+          "subtipo": "cadastro",
+          "quem_iniciou": "vendedor",
+          "tentativa_comercial": "SIM"
+        },
+        "P3": {
+          "problemas_identificados": "P12",
+          "quem_relatou": "vendedor_detectou",
+          "foi_resolvido_na_ligacao": "NAO",
+          "escalou_para": "nao_escalou"
+        },
+        "P5": {
+          "teve_challenger": "NAO",
+          "codigos_challenger": "nenhum",
+          "resultado_imediato": "cliente_aceitou",
+          "qualidade": "alta"
+        },
+        "P6": {
+          "oportunidades_perdidas": "OP6",
+          "valor_potencial_R$": "0"
+        },
+        "P9": {
+          "tipo_abertura": "AB2",
+          "usou_nome": "SIM",
+          "tipo_fechamento": "FC3",
+          "proximo_passo_claro": "NAO",
+          "prazo_definido": "NAO"
+        }
+      }
+    }
+  ]
+}
