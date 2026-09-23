@@ -1,0 +1,10 @@
+﻿nivel;segmento;ligacoes;pct_da_base;pct_do_nivel_pai;observacao
+1 Todas;Ligacoes GRVIN agosto;9636;100,0;100,0;
+2 Houve conversa?;Sem conversa;2867;29,8;29,8;"2.775 auto-classificadas por tamanho < 600 caracteres; ~630 parecem conversas curtas reais"
+2 Houve conversa?;Com conversa;6769;70,2;70,2;Denominador dos indicadores
+3 Era venda?;Nao era venda;3767;39,1;55,7;
+3 Era venda?;Venda;3002;31,2;44,3;379 fecharam
+4 Teve problema?;Nao era venda com problema;2040;21,2;54,2;
+4 Teve problema?;Nao era venda sem problema;1727;17,9;45,8;
+4 Teve problema?;Venda com problema;1387;14,4;46,2;fecha 19,9%
+4 Teve problema?;Venda sem problema;1615;16,8;53,8;fecha 6,4%

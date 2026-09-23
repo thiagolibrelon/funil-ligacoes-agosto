@@ -1,0 +1,13 @@
+﻿codigo;problema;nao_venda;venda;total;pct_nao_resolvido
+P11;Outro (sem categoria);475;370;845;62,6
+P1;Acesso/sistema;462;381;843;33,8
+P2;Faturamento/cobranca;357;185;542;50,0
+P10;Reserva/sistema;226;243;469;30,5
+P5;Condutor/cadastro;213;89;302;28,1
+P4;Manutencao/substituto;169;57;226;52,2
+P7;Disponibilidade;75;101;176;67,6
+P6;Km excedente;54;96;150;50,7
+P12;Manipulacao de NPS;98;37;135;95,6
+P3;Multa/infracao;99;28;127;40,2
+P9;Sinistro;84;30;114;50,0
+P8;Franquia/agencia;14;4;18;72,2
