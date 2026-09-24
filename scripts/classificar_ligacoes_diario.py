@@ -19,7 +19,12 @@ SAIDA (na pasta escolhida), com o nome do dia (ex: classificacao_2026-09-22):
 Na tela aparece cada ligacao (desfecho, tipo, tokens) e o acumulado de tokens e custo; --silencioso mostra
 so 1 linha a cada 25.
 
-FORMATO (vencedor do teste teste_gpt_localiza/, config C7): 11 prompts por ligacao em 1 pedido so
+MODO "foco" (padrao, config C12 do teste): so os 3 temas que o negocio usa hoje — tipo de venda (era venda,
+desfecho, tipo de ligacao), comportamento Challenger e problemas (todos os da ligacao, ex: acesso + boleto).
+Evidencia antes do veredito, definicoes e regras de fronteira no prompt; qualidade do Challenger calculada
+pela regua (dado concreto + conectou a situacao + cliente reagiu). Mude MODO para "completo" para voltar ao C7.
+
+MODO "completo" (config C7 do teste): 11 prompts por ligacao em 1 pedido so
 (P1, P2, P3, P5, P6, P7, P8, P9, P10, P11, P15), transcricao compactada, resposta so com codigos, cache
 do llm-gate. Taxonomia identica a scripts/analisar_gemini_julho.py (a do Gemini de agosto).
 Regras fora do modelo:
@@ -47,6 +52,7 @@ import requests
 csv.field_size_limit(10_000_000)
 
 MODELO = "gpt-4o-mini"
+MODO = "foco"  # "foco" = C12 (venda, Challenger, problemas) | "completo" = C7 (11 prompts)
 URL_PADRAO = "https://llm-gate-np.localiza.dev/llm-gate/v2/chat/completions"
 MAX_TOKENS_SAIDA = 1500
 WORKERS = 4
@@ -174,6 +180,199 @@ SYSTEM = (
     f"Nao invente informacao que nao esta na transcricao.\n\n{TAXONOMIA}\n\n"
     f"Responda SOMENTE um objeto JSON valido, sem texto fora dele, no formato:\n{FORMATO}"
 )
+
+# ---------------------------------------------------------------------------
+# Prompt C12 (MODO "foco")
+# ---------------------------------------------------------------------------
+# Codigos de problema. Para acrescentar um codigo novo: uma linha aqui (codigo, nome, definicao/fronteira).
+PROBLEMAS = [
+    ("P1", "Acesso/sistema", "portal fora do ar, senha, biometria, usuario sem acesso"),
+    ("P2", "Faturamento/cobranca", "boleto errado ou atrasado, fatura para terceiro, valor incorreto, cobranca indevida, "
+                                  "contestacao de cobranca (avaria, pneu, taxas de encerramento)"),
+    ("P3", "Multa/infracao", "multa no condutor errado, prazo de indicacao, contestacao"),
+    ("P4", "Manutencao/substituto", "carro em oficina, demora, sem carro substituto"),
+    ("P5", "Condutor/cadastro", "cadastro de condutor com ERRO ou bloqueio (CPF bloqueado, habilitacao recusada, acesso de ex-funcionario). "
+                               "Pedido de rotina para trocar/incluir condutor, sem erro, NAO e problema"),
+    ("P6", "Km excedente", "cobranca de km incorreta, plano de km errado"),
+    ("P7", "Disponibilidade", "nao ha carro/categoria disponivel na data ou na loja pedida"),
+    ("P8", "Franquia/agencia", "processo diferente ou falha em loja franqueada"),
+    ("P9", "Sinistro", "acidente, avaria, franquia de dano"),
+    ("P10", "Reserva/sistema", "reserva com erro no sistema: nao aparece, status errado, pendente de aprovacao, erro ao criar/editar. "
+                               "Inclui contrato encerrado por engano no sistema. Se o problema e falta de carro, e P7; se a reserva travou por "
+                               "limite de credito, e P13; duvida de como usar o portal sem erro nao e problema"),
+    ("P12", "Manipulacao de pesquisa/NPS", "vendedor pede nota alta ou dita a nota. So pedir para o cliente avaliar o atendimento NAO e P12"),
+    ("P13", "Credito/cadastro PJ", "reserva ou locacao travada por limite de credito insuficiente/comprometido, analise ou "
+                                   "ampliacao de credito, cadastro PJ pendente, inativo ou reprovado, exigencia de documento "
+                                   "que trava o cadastro (inclui cadastro de campanha)"),
+    ("P14", "Preco/competitividade", "cliente reclama que o preco ficou acima da pessoa fisica, da cotacao ou da "
+                                     "concorrencia, ou desiste/migra por preco. So informar o preco nao e problema"),
+    ("P15", "Tag de pedagio", "FALHA da tag: inativa, nao cobra, erro ao ativar. Pedido de ativacao de rotina NAO e problema"),
+    ("P11", "Outro", "problema real que nao cabe em nenhum codigo acima — obrigatorio preencher 'descricao'"),
+]
+CODIGOS_PROBLEMA = [c for c, _, _ in PROBLEMAS]
+
+SYSTEM_FOCO = f"""Voce e analista de ligacoes comerciais B2B de locacao de frotas corporativas.
+{CONTEXTO}
+
+Analise a ligacao enviada pelo usuario e responda 3 perguntas. Nao invente nada que nao esteja na transcricao.
+Em cada bloco, preencha PRIMEIRO a evidencia (resumo curto do que foi dito, sem nomes de pessoas ou empresas) e SO DEPOIS
+o veredito. Se nao houver evidencia, o veredito e NAO/nenhum.
+
+# 1. VENDA
+era_venda = SIM quando ha locacao, contrato ou produto em jogo COM INTERESSE DO CLIENTE: cotacao, reserva, pedido, data,
+quantidade, renovacao, prorrogacao. Vendedor oferecer e o cliente nao ter demanda = era_venda NAO (com tentativa_comercial SIM).
+desfecho:
+- fechou_novo = locacao/contrato novo confirmado NA ligacao (inclui confirmar na ligacao um pedido que o cliente ja tinha feito)
+- fechou_renovacao = renovou ou prorrogou contrato existente na ligacao
+- fechou_upsell = cliente ativo adicionou carro ou produto na ligacao
+- interessou_nao_fechou = cliente tem demanda real (cotacao, reserva, pedido), mas nao concluiu na ligacao
+- nao_era_venda = nenhuma locacao em jogo (suporte, cobranca, recado, relacionamento sem demanda)
+Casos de fronteira:
+- cliente quer locar mas depende de credito, aprovacao ou reserva pendente = interessou_nao_fechou
+- ligacao so de cobranca/pagamento, sem demanda de locacao = nao_era_venda
+- vendedor sonda demanda e o cliente diz que nao tem = nao_era_venda
+- desfecho nao_era_venda <=> era_venda NAO
+tipo (assunto principal da ligacao):
+nova_venda = prospect ou cliente sem contrato buscando locacao | renovacao = renovar/prorrogar contrato |
+upsell = mais carros ou produto para cliente ativo | retencao = cliente inativo ou em risco, vendedor tenta retomar |
+suporte_operacional = portal, acesso, reserva, cadastro, condutor | pos_venda_sinistro = acidente, avaria |
+pos_venda_manutencao = acompanhamento de cliente ativo (visita de rotina, manutencao, satisfacao) |
+cobranca = fatura, boleto, pagamento | onboarding = boas-vindas/ativacao de cliente recem-cadastrado |
+duvida_contrato = duvida sobre regras, tarifa ou condicoes | misto = dois assuntos com peso parecido |
+sem_conteudo = sem conversa util (caixa postal, recado, transferencia)
+
+# 2. CHALLENGER
+Challenger = o vendedor ENSINA algo que o cliente nao sabia, ADAPTA a situacao dele e TOMA O CONTROLE da conversa, sem o
+cliente ter pedido. NAO e Challenger: oferecer produto, responder duvida, informar preco ou regra quando perguntado,
+"se precisar me chama", ser simpatico. Na duvida, NAO.
+Marque SIM/NAO em cada tipo:
+CH1 custo oculto revelado — ex: "se devolver antes do prazo cai em diaria e sai o dobro"
+CH2 ROI calculado — ex: "o eletrico custa X a mais, mas economiza Y de combustivel"
+CH3 urgencia por regra real — ex: "a readequacao de tarifa e em marco; fechando hoje voce fica fora"
+CH4 alternativa/concorrente superado com dado — ex: "frota propria tem IPVA, seguro e manutencao; a locacao elimina isso"
+CH5 dor revelada conectada a produto — ex: "voce falou em multa de condutor errado; a telemetria resolve isso"
+CH6 antecipacao de problema — ex: "seu contrato vence em 2 semanas; ja deixo renovado para nao cair em diaria"
+CH7 descoberta de necessidade nao declarada — ex: vendedor pergunta e descobre frota propria ou caminhoes que o cliente nao citou
+Regua (so se houve Challenger): trouxe_dado_concreto (numero, prazo, regra, valor) | conectou_a_situacao_do_cliente |
+cliente_reagiu (aceitou, perguntou mais ou disse que vai avaliar)
+
+# 3. PROBLEMAS
+Problema = algo DEU ERRADO ou esta IMPEDINDO o cliente. Pedido de rotina ou duvida sem erro = nao e problema.
+Liste TODOS os problemas da ligacao — uma ligacao pode ter varios (ex: acesso ao portal + boleto atrasado = P1 e P2).
+So conte problema que e tema relevante da ligacao, nao mencao de passagem.
+""" + "\n".join(f"{c} {n} — {d}" for c, n, d in PROBLEMAS) + """
+
+Responda SOMENTE um objeto JSON valido, sem texto fora dele, neste formato e nesta ordem:
+{"venda": {"evidencia": "<ate 15 palavras>", "era_venda": "SIM|NAO", "tentativa_comercial": "SIM|NAO",
+  "desfecho": "...", "tipo": "..."},
+ "challenger": {"frase_vendedor": "<o que o vendedor ensinou, ate 20 palavras, ou vazio>", "reacao_cliente": "<ate 10 palavras ou vazio>",
+  "CH1": "SIM|NAO", "CH2": "SIM|NAO", "CH3": "SIM|NAO", "CH4": "SIM|NAO", "CH5": "SIM|NAO", "CH6": "SIM|NAO", "CH7": "SIM|NAO",
+  "trouxe_dado_concreto": "SIM|NAO", "conectou_a_situacao_do_cliente": "SIM|NAO", "cliente_reagiu": "SIM|NAO"},
+ "problemas": {"lista": [{"evidencia": "<ate 12 palavras>", "codigo": "P..", "descricao": "<so para P11>"}],
+  "tem_problema": "SIM|NAO", "principal": "P..|nenhum", "foi_resolvido_na_ligacao": "SIM|NAO|PARCIAL|nenhum"}}
+Use sempre os codigos (P1..., CH1...), nunca o nome por extenso. Lista vazia [] se nao houve problema."""
+
+TIPOS_VENDA = ("nova_venda", "renovacao", "upsell")
+
+
+def _sim(v):
+    return "SIM" if str(v or "").strip().upper() in ("SIM", "S", "YES", "TRUE") else "NAO"
+
+
+def normalizar_foco(resp):
+    """Resposta do C12 -> mesmo formato de chaves do modo completo (P1, P2, P3, P5) + campos do foco."""
+    g = lambda k: resp.get(k) if isinstance(resp.get(k), dict) else {}
+    v, ch, pr = g("venda"), g("challenger"), g("problemas")
+    revisar = []
+
+    era = _sim(v.get("era_venda"))
+    desfecho = _txt(v.get("desfecho"))
+    tipo = _txt(v.get("tipo"))
+    if (era == "NAO") != (desfecho == "nao_era_venda"):
+        revisar.append("era_venda x desfecho")
+    if era == "NAO" and tipo in TIPOS_VENDA:
+        revisar.append("tipo de venda sem venda")
+
+    codigos_ch = [f"CH{i}" for i in range(1, 8) if _sim(ch.get(f"CH{i}")) == "SIM"]
+    frase = _txt(ch.get("frase_vendedor"))
+    teve = "SIM" if codigos_ch and frase else "NAO"
+    regua = {k: _sim(ch.get(k)) for k in ("trouxe_dado_concreto", "conectou_a_situacao_do_cliente", "cliente_reagiu")}
+    pontos = sum(x == "SIM" for x in regua.values())
+    qualidade = ("alta" if pontos == 3 else "media" if pontos == 2 else "baixa") if teve == "SIM" else "nenhum"
+
+    itens, vistos = [], set()
+    for it in _lista_dicts(pr.get("lista")):
+        cod = (_codigos(it.get("codigo"), "P") or [""])[0]
+        if cod in CODIGOS_PROBLEMA and cod not in vistos:
+            vistos.add(cod)
+            itens.append({"codigo": cod, "evidencia": _txt(it.get("evidencia")),
+                          "descricao": _txt(it.get("descricao")) if cod == "P11" else ""})
+    codigos_pr = [i["codigo"] for i in itens]
+    tem = "SIM" if codigos_pr else "NAO"
+    if _sim(pr.get("tem_problema")) == "SIM" and not codigos_pr:
+        revisar.append("tem_problema sem codigo")
+    principal = (_codigos(pr.get("principal"), "P") or [""])[0]
+    if principal not in codigos_pr:
+        principal = codigos_pr[0] if codigos_pr else "nenhum"
+
+    return {
+        "P1": {"era_venda": era, "desfecho": desfecho, "tentativa_comercial": _sim(v.get("tentativa_comercial")),
+               "evidencia_venda": _txt(v.get("evidencia"))},
+        "P2": {"tipo": tipo},
+        "P3": {"tem_problema": tem, "problemas_identificados": codigos_pr, "problema_principal": principal,
+               "foi_resolvido_na_ligacao": _txt(pr.get("foi_resolvido_na_ligacao")).upper() if codigos_pr else "nenhum",
+               "itens": itens},
+        "P5": {"teve_challenger": teve, "codigos_challenger": codigos_ch if teve == "SIM" else [], "qualidade": qualidade,
+               **regua, "frase_vendedor": frase if teve == "SIM" else "", "reacao_cliente": _txt(ch.get("reacao_cliente")) if teve == "SIM" else ""},
+        "revisar": revisar,
+    }
+
+
+def resultado_sem_conteudo_foco():
+    return {"P1": {"era_venda": "NAO", "desfecho": "nao_era_venda", "tentativa_comercial": "NAO", "evidencia_venda": ""},
+            "P2": {"tipo": "sem_conteudo"},
+            "P3": {"tem_problema": "NAO", "problemas_identificados": [], "problema_principal": "nenhum",
+                   "foi_resolvido_na_ligacao": "nenhum", "itens": []},
+            "P5": {"teve_challenger": "NAO", "codigos_challenger": [], "qualidade": "nenhum", "trouxe_dado_concreto": "NAO",
+                   "conectou_a_situacao_do_cliente": "NAO", "cliente_reagiu": "NAO", "frase_vendedor": "", "reacao_cliente": ""},
+            "revisar": []}
+
+
+def linha_csv_foco(reg):
+    c = reg["classificacao"]
+    j = lambda xs: "+".join(xs) if xs else "nenhum"
+    p1, p3, p5 = c["P1"], c["P3"], c["P5"]
+    return {
+        "cd_segmento": reg["cd_segmento"], "data": reg["data"], "data_hora_inicio": reg["data_hora_inicio"],
+        "direcao": reg["direcao"], "nome_agente_1": reg["nome_agente_1"], "time_agente_1": reg["time_agente_1"],
+        "fonte_classificacao": reg["fonte_classificacao"], "modelo": reg["modelo"],
+        "era_venda": p1["era_venda"], "p1_desfecho": p1["desfecho"], "p2_tipo": c["P2"]["tipo"],
+        "p1_tentativa_comercial": p1["tentativa_comercial"], "evidencia_venda": p1["evidencia_venda"],
+        "tem_problema": p3["tem_problema"], "p3_problemas_identificados": j(p3["problemas_identificados"]),
+        "p3_problema_principal": p3["problema_principal"], "p3_foi_resolvido_na_ligacao": p3["foi_resolvido_na_ligacao"],
+        "p3_evidencias": " | ".join(f"{i['codigo']}: {i['evidencia']}" for i in p3["itens"]),
+        "p3_outro_descricao": " | ".join(i["descricao"] for i in p3["itens"] if i["codigo"] == "P11"),
+        "p5_teve_challenger": p5["teve_challenger"], "p5_codigos_challenger": j(p5["codigos_challenger"]),
+        "p5_qualidade": p5["qualidade"], "p5_trouxe_dado": p5["trouxe_dado_concreto"],
+        "p5_conectou_situacao": p5["conectou_a_situacao_do_cliente"], "p5_cliente_reagiu": p5["cliente_reagiu"],
+        "p5_frase_vendedor": p5["frase_vendedor"], "p5_reacao_cliente": p5["reacao_cliente"],
+        "revisar": "; ".join(c.get("revisar", [])),
+        "tokens_entrada": reg["uso"].get("prompt_tokens", 0), "tokens_cache": reg["uso"].get("cached_tokens", 0),
+        "tokens_saida": reg["uso"].get("completion_tokens", 0), "erro": reg.get("erro", ""),
+    }
+
+
+def resposta_simulada_foco(transcricao):
+    return ({"venda": {"evidencia": "cliente pede cotacao de 2 carros", "era_venda": "SIM", "tentativa_comercial": "SIM",
+                       "desfecho": "interessou_nao_fechou", "tipo": "nova_venda"},
+             "challenger": {"frase_vendedor": "", "reacao_cliente": "", **{f"CH{i}": "NAO" for i in range(1, 8)},
+                            "trouxe_dado_concreto": "NAO", "conectou_a_situacao_do_cliente": "NAO", "cliente_reagiu": "NAO"},
+             "problemas": {"lista": [{"evidencia": "nao consegue entrar no portal", "codigo": "P1"},
+                                     {"evidencia": "boleto venceu sem chegar", "codigo": "2"}],
+                           "tem_problema": "SIM", "principal": "P1", "foi_resolvido_na_ligacao": "PARCIAL"}},
+            {"prompt_tokens": len(SYSTEM_FOCO + transcricao) // 4, "completion_tokens": 250,
+             "cached_tokens": len(SYSTEM_FOCO) // 4}, "")
+
 
 URA = re.compile(
     r"(se voc[eê] disser seu nome e o motivo da liga[cç][aã]o.*?dispon[ií]vel\.?"
@@ -333,7 +532,8 @@ def conexao(chave_janela=None):
 
 def montar_payload(transcricao):
     usuario = f"Transcricao:\n{transcricao}"
-    p = {"model": MODELO, "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": usuario}],
+    system = SYSTEM_FOCO if MODO == "foco" else SYSTEM
+    p = {"model": MODELO, "messages": [{"role": "system", "content": system}, {"role": "user", "content": usuario}],
          "response_format": {"type": "json_object"}}
     if MODELO.startswith(("gpt-5", "o1", "o3", "o4")):
         p["max_completion_tokens"] = MAX_TOKENS_SAIDA * 4
@@ -489,6 +689,33 @@ def linha_csv(reg):
     }
 
 
+def resumo_do_dia(registros):
+    """O que o negocio pergunta: vendas, tipos, problemas mais recorrentes (todos os codigos) e Challenger."""
+    from collections import Counter
+    uteis = [r for r in registros if r["fonte_classificacao"] in ("gpt", "simulado")]
+    nomes = {c: n for c, n, _ in PROBLEMAS}
+    desf = Counter(r["classificacao"]["P1"]["desfecho"] for r in registros)
+    venda = sum(v for k, v in desf.items() if k not in ("nao_era_venda", ""))
+    fechou = sum(v for k, v in desf.items() if k.startswith("fechou"))
+    tipos = Counter(r["classificacao"]["P2"]["tipo"] for r in uteis).most_common(4)
+    com_prob = [r for r in uteis if r["classificacao"]["P3"]["problemas_identificados"]]
+    multi = sum(len(r["classificacao"]["P3"]["problemas_identificados"]) > 1 for r in com_prob)
+    ranking = Counter(c for r in com_prob for c in r["classificacao"]["P3"]["problemas_identificados"]).most_common(8)
+    ch = Counter(r["classificacao"]["P5"]["qualidade"] for r in uteis if r["classificacao"]["P5"]["teve_challenger"] == "SIM")
+    revisar = sum(bool(r["classificacao"].get("revisar")) for r in uteis)
+    linhas = [
+        f"VENDA: {venda} ligacoes com venda em jogo, {fechou} fecharam ({100 * fechou / venda:.0f}% das vendas)" if venda
+        else "VENDA: nenhuma ligacao com venda em jogo",
+        "Tipos mais comuns: " + ", ".join(f"{t} {n}" for t, n in tipos),
+        f"PROBLEMAS: {len(com_prob)} de {len(uteis)} ligacoes com conversa ({multi} com mais de um problema)",
+        *[f"  {c} {nomes.get(c, '')}: {n}" for c, n in ranking],
+        f"CHALLENGER: {sum(ch.values())} ligacoes (alta {ch.get('alta', 0)}, media {ch.get('media', 0)}, baixa {ch.get('baixa', 0)})",
+    ]
+    if revisar:
+        linhas.append(f"{revisar} ligacoes marcadas para revisar (coluna 'revisar' do CSV)")
+    return "\n".join(linhas)
+
+
 def registrar_consumo(saida, nome, arquivo_entrada, registros, fontes, tok, custo):
     """consumo_diario.csv na pasta de saida: 1 linha por dia/arquivo (rodar de novo o mesmo dia atualiza a linha)."""
     caminho = saida / "consumo_diario.csv"
@@ -562,10 +789,13 @@ def main():
                     feitos[reg["cd_segmento"]] = reg
 
     pendentes = [l for l in ligacoes if l["cd_segmento"] not in feitos]
+    print(f"modo {MODO} ({'C12: venda, Challenger, problemas' if MODO == 'foco' else 'C7: 11 prompts'})")
     print(f"{entrada.name}: {len(ligacoes)} ligacoes validas ({len(feitos)} ja classificadas, {len(pendentes)} a fazer) "
           f"| ignoradas: {ignoradas} | modelo {MODELO}")
     trava = threading.Lock()
     contador = [0]
+    vazio = resultado_sem_conteudo_foco if MODO == "foco" else resultado_sem_conteudo
+    simulada = resposta_simulada_foco if MODO == "foco" else resposta_simulada
     acum = {"prompt_tokens": 0, "cached_tokens": 0, "completion_tokens": 0}
     pin, pcache, pout = PRECOS.get(MODELO, (0, 0, 0))
     fmt = lambda n: f"{n:,}".replace(",", ".")
@@ -577,16 +807,17 @@ def main():
         t = compactar(lig["transcricao_limpa"])
         base = {k: lig[k] for k in ("cd_segmento", "data", "data_hora_inicio", "direcao", "nome_agente_1", "time_agente_1")}
         if len(t) < TAMANHO_MINIMO:
-            reg = {**base, "fonte_classificacao": "auto_curta", "modelo": "", "classificacao": resultado_sem_conteudo(),
+            reg = {**base, "fonte_classificacao": "auto_curta", "modelo": "", "classificacao": vazio(),
                    "uso": {}, "erro": ""}
         else:
-            resp, uso, erro = resposta_simulada(t) if args.simular else chamar(url, headers, t)
+            resp, uso, erro = simulada(t) if args.simular else chamar(url, headers, t)
             if resp is None:
-                reg = {**base, "fonte_classificacao": "erro", "modelo": MODELO, "classificacao": resultado_sem_conteudo(),
+                reg = {**base, "fonte_classificacao": "erro", "modelo": MODELO, "classificacao": vazio(),
                        "uso": {}, "erro": erro}
             else:
                 reg = {**base, "fonte_classificacao": "simulado" if args.simular else "gpt", "modelo": MODELO,
-                       "classificacao": normalizar(resp, lig["direcao"]), "uso": uso, "erro": ""}
+                       "classificacao": normalizar_foco(resp) if MODO == "foco" else normalizar(resp, lig["direcao"]),
+                       "uso": uso, "erro": ""}
         with trava:
             with open(andamento, "a", encoding="utf-8") as f:
                 f.write(json.dumps(reg, ensure_ascii=False) + "\n")
@@ -620,17 +851,15 @@ def main():
                   "modelo": MODELO, "ligacoes": len(registros), "por_fonte": fontes, "ignoradas_na_leitura": ignoradas,
                   "tokens": tok, "custo_estimado_usd_preco_publico": round(custo, 4)},
         "ligacoes": registros}, ensure_ascii=False, indent=1), encoding="utf-8")
-    linhas = [linha_csv(r) for r in registros]
+    linhas = [(linha_csv_foco if MODO == "foco" else linha_csv)(r) for r in registros]
     with open(saida / f"{nome}.csv", "w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(linhas[0]), delimiter=";")
         w.writeheader()
         w.writerows(linhas)
 
-    venda = sum(r["classificacao"]["P1"]["desfecho"] not in ("nao_era_venda", "") for r in registros)
-    fechou = sum(r["classificacao"]["P1"]["desfecho"].startswith("fechou") for r in registros)
     resumo = (f"{len(registros)} ligacoes classificadas ({fontes['gpt'] + fontes['simulado']} pelo GPT, "
-              f"{fontes['auto_curta']} curtas sem conteudo, {fontes['erro']} com erro)\n"
-              f"Venda: {venda} | fecharam: {fechou}\n"
+              f"{fontes['auto_curta']} curtas sem conteudo, {fontes['erro']} com erro)\n\n"
+              + resumo_do_dia(registros) + "\n\n"
               f"Tokens: {tok['prompt_tokens']:,} entrada ({tok['cached_tokens']:,} do cache), {tok['completion_tokens']:,} saida "
               f"— ~US$ {custo:.2f} (preco publico)\n\nArquivos em {saida}:\n  {nome}.json\n  {nome}.csv")
     if fontes["erro"]:
