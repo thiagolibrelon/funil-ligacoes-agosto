@@ -548,14 +548,15 @@ def _tk():
     return raiz
 
 
-def escolher_arquivo():
+def escolher_arquivos():
+    """Um ou varios dias: na janela, Shift+clique (intervalo) ou Ctrl+clique (avulsos)."""
     from tkinter import filedialog
     raiz = _tk()
-    caminho = filedialog.askopenfilename(
-        parent=raiz, title="Escolha o arquivo de ligacoes do dia",
+    caminhos = filedialog.askopenfilenames(
+        parent=raiz, title="Escolha o(s) arquivo(s) de ligacoes — Shift+clique para varios dias",
         filetypes=[("Todos os arquivos", "*.*"), ("CSV", "*.csv")])
     raiz.destroy()
-    return caminho
+    return list(caminhos)
 
 
 def escolher_pasta():
@@ -878,42 +879,14 @@ def registrar_consumo(saida, nome, arquivo_entrada, registros, fontes, tok, cust
 # ---------------------------------------------------------------------------
 # Principal
 # ---------------------------------------------------------------------------
-def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--entrada", help="arquivo do dia (sem isso, abre uma janela)")
-    ap.add_argument("--saida", help="pasta de saida (sem isso, abre uma janela)")
-    ap.add_argument("--workers", type=int, default=WORKERS)
-    ap.add_argument("--simular", action="store_true", help="nao chama a API (teste do script)")
-    ap.add_argument("--silencioso", action="store_true", help="mostra so 1 linha a cada 25 ligacoes")
-    args = ap.parse_args()
-
-    global INTERATIVO
-    INTERATIVO = not (args.entrada and args.saida)
-    entrada = args.entrada or escolher_arquivo()
-    if not entrada:
-        sys.exit("Nenhum arquivo escolhido.")
-    saida = args.saida or escolher_pasta()
-    if not saida:
-        sys.exit("Nenhuma pasta escolhida.")
-    entrada, saida = Path(entrada), Path(saida)
-    saida.mkdir(parents=True, exist_ok=True)
-
+def classificar_arquivo(entrada, saida, args, url, headers):
+    """Classifica um arquivo (um dia). Devolve (texto do resumo, estatisticas) ou (mensagem de erro, None)."""
     try:
         ligacoes, ignoradas = ler_ligacoes(entrada)
     except Exception as e:
-        avisar("Erro no arquivo", f"Nao consegui ler {entrada.name}: {e}", erro=True)
-        sys.exit(1)
+        return f"{entrada.name}: nao consegui ler o arquivo ({e})", None
     if not ligacoes:
-        avisar("Nada para classificar", f"{entrada.name} nao tem ligacoes validas. Ignoradas: {ignoradas}", erro=True)
-        sys.exit(1)
-
-    url = headers = None
-    if not args.simular:
-        chave = None if os.getenv("API_KEY") else pedir_chave()
-        url, headers = conexao(chave)
-        if not headers.get("api_key") and "src.settings" not in sys.modules:
-            avisar("Sem chave", "Sem a chave do llm-gate nao da para classificar.", erro=True)
-            sys.exit(1)
+        return f"{entrada.name}: nenhuma ligacao valida (ignoradas: {ignoradas})", None
 
     datas = sorted({l["data"] for l in ligacoes if l["data"]})
     nome = f"classificacao_{datas[0]}" if len(datas) == 1 else f"classificacao_{entrada.stem}"
@@ -1010,7 +983,68 @@ def main():
         resumo += f"\n\n{fontes['erro']} ligacoes deram erro: rode de novo com o mesmo arquivo e pasta para tentar so elas."
     registrar_consumo(saida, nome, entrada.name, registros, fontes, tok, custo)
     resumo += f"\n  consumo_diario.csv (1 linha por dia, para acompanhar o mes)"
-    avisar("Classificacao concluida", resumo)
+    return resumo, {"nome": nome, "ligacoes": len(registros), "gpt": fontes["gpt"] + fontes["simulado"],
+                    "erro": fontes["erro"], "tokens": tok["prompt_tokens"] + tok["completion_tokens"], "custo": custo}
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--entrada", nargs="+", help="arquivo(s) do(s) dia(s) (sem isso, abre uma janela)")
+    ap.add_argument("--saida", help="pasta de saida (sem isso, abre uma janela)")
+    ap.add_argument("--workers", type=int, default=WORKERS)
+    ap.add_argument("--simular", action="store_true", help="nao chama a API (teste do script)")
+    ap.add_argument("--silencioso", action="store_true", help="mostra so 1 linha a cada 25 ligacoes")
+    args = ap.parse_args()
+
+    global INTERATIVO
+    INTERATIVO = not (args.entrada and args.saida)
+    entradas = args.entrada or escolher_arquivos()
+    if not entradas:
+        sys.exit("Nenhum arquivo escolhido.")
+    saida = args.saida or escolher_pasta()
+    if not saida:
+        sys.exit("Nenhuma pasta escolhida.")
+    entradas, saida = sorted(Path(e) for e in entradas), Path(saida)
+    saida.mkdir(parents=True, exist_ok=True)
+
+    url = headers = None
+    if not args.simular:
+        chave = None if os.getenv("API_KEY") else pedir_chave()
+        url, headers = conexao(chave)
+        if not headers.get("api_key") and "src.settings" not in sys.modules:
+            avisar("Sem chave", "Sem a chave do llm-gate nao da para classificar.", erro=True)
+            sys.exit(1)
+
+    resultados = []
+    for n, entrada in enumerate(entradas, 1):
+        if len(entradas) > 1:
+            print(f"\n{'=' * 70}\nARQUIVO {n}/{len(entradas)}: {entrada.name}\n{'=' * 70}")
+        texto, stats = classificar_arquivo(entrada, saida, args, url, headers)
+        resultados.append((entrada, texto, stats))
+        if len(entradas) > 1:
+            print(texto)
+
+    if len(entradas) == 1:
+        texto, stats = resultados[0][1], resultados[0][2]
+        avisar("Classificacao concluida" if stats else "Erro no arquivo", texto, erro=stats is None)
+        return
+
+    ok = [r for r in resultados if r[2]]
+    linhas = [f"{'dia':<26}{'ligacoes':>9}{'GPT':>6}{'erro':>6}{'tokens':>12}{'US$':>8}"]
+    for entrada, texto, st in resultados:
+        if st:
+            linhas.append(f"{st['nome'].replace('classificacao_', ''):<26}{st['ligacoes']:>9}{st['gpt']:>6}{st['erro']:>6}"
+                          f"{st['tokens']:>12,}{st['custo']:>8.2f}")
+        else:
+            linhas.append(f"{entrada.name:<26}  FALHOU: {texto[:60]}")
+    linhas.append(f"{'TOTAL':<26}{sum(s['ligacoes'] for _, _, s in ok):>9}{sum(s['gpt'] for _, _, s in ok):>6}"
+                  f"{sum(s['erro'] for _, _, s in ok):>6}{sum(s['tokens'] for _, _, s in ok):>12,}"
+                  f"{sum(s['custo'] for _, _, s in ok):>8.2f}")
+    fim = (f"{len(ok)} de {len(entradas)} arquivos classificados. Resultados e consumo_diario.csv em {saida}\n\n"
+           + "\n".join(linhas))
+    if any(s["erro"] for _, _, s in ok):
+        fim += "\n\nHouve ligacoes com erro: rode de novo selecionando os mesmos arquivos e a mesma pasta — so elas sao refeitas."
+    avisar("Classificacao concluida", fim)
 
 
 if __name__ == "__main__":
