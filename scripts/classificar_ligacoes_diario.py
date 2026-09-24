@@ -16,6 +16,10 @@ SAIDA (na pasta escolhida), com o nome do dia (ex: classificacao_2026-09-22):
   _andamento.jsonl — respostas salvas uma a uma; se cair no meio, rode de novo com o mesmo arquivo e
            a mesma pasta que ele continua de onde parou.
   consumo_diario.csv — 1 linha por dia (ligacoes, tokens, custo estimado), para acompanhar o consumo do mes.
+TRECHOS (modo foco): p5_trecho_challenger e p3_trechos trazem o trecho REAL da transcricao (fala anterior, a fala,
+fala seguinte), localizado a partir de uma ancora literal pedida ao modelo — o texto nunca e o do modelo. Se a ancora
+nao existe na transcricao, o trecho fica vazio e a ligacao vai para "revisar". O nome do vendedor vira [VENDEDOR];
+nomes de clientes/empresas NAO sao anonimizados — revise antes de usar trechos em apresentacoes.
 Na tela aparece cada ligacao (desfecho, tipo, tokens) e o acumulado de tokens e custo; --silencioso mostra
 so 1 linha a cada 25.
 
@@ -273,11 +277,14 @@ Responda SOMENTE um objeto JSON valido, sem texto fora dele, neste formato e nes
 {"venda": {"evidencia": "<ate 15 palavras>", "era_venda": "SIM|NAO", "tentativa_comercial": "SIM|NAO",
   "desfecho": "...", "tipo": "..."},
  "challenger": {"frase_vendedor": "<o que o vendedor ensinou, ate 20 palavras, ou vazio>", "reacao_cliente": "<ate 10 palavras ou vazio>",
+  "ancora": "<COPIE LITERALMENTE 6 a 12 palavras seguidas da fala do vendedor em que ele ensinou, ou vazio>",
   "CH1": "SIM|NAO", "CH2": "SIM|NAO", "CH3": "SIM|NAO", "CH4": "SIM|NAO", "CH5": "SIM|NAO", "CH6": "SIM|NAO", "CH7": "SIM|NAO",
   "trouxe_dado_concreto": "SIM|NAO", "conectou_a_situacao_do_cliente": "SIM|NAO", "cliente_reagiu": "SIM|NAO"},
- "problemas": {"lista": [{"evidencia": "<ate 12 palavras>", "codigo": "P..", "descricao": "<so para P11>"}],
+ "problemas": {"lista": [{"evidencia": "<ate 12 palavras>", "ancora": "<COPIE LITERALMENTE 6 a 12 palavras seguidas da fala em que o problema aparece>",
+  "codigo": "P..", "descricao": "<so para P11>"}],
   "tem_problema": "SIM|NAO", "principal": "P..|nenhum", "foi_resolvido_na_ligacao": "SIM|NAO|PARCIAL|nenhum"}}
-Use sempre os codigos (P1..., CH1...), nunca o nome por extenso. Lista vazia [] se nao houve problema."""
+Use sempre os codigos (P1..., CH1...), nunca o nome por extenso. Lista vazia [] se nao houve problema.
+"ancora" e uma COPIA EXATA de palavras da transcricao (sem corrigir, sem resumir), usada para localizar o trecho."""
 
 TIPOS_VENDA = ("nova_venda", "renovacao", "upsell")
 DESFECHOS = ("fechou_novo", "fechou_renovacao", "fechou_upsell", "interessou_nao_fechou", "nao_era_venda")
@@ -333,7 +340,7 @@ def aplicar_regras_foco(c):
         pontos = sum(p5.get(k) == "SIM" for k in ("trouxe_dado_concreto", "conectou_a_situacao_do_cliente", "cliente_reagiu"))
         p5["qualidade"] = "alta" if pontos == 3 else "media" if pontos == 2 else "baixa"
 
-    c["revisar"] = [r for r in c.get("revisar", []) if r == "tem_problema sem codigo"] + revisar
+    c["revisar"] = [r for r in c.get("revisar", []) if r == "tem_problema sem codigo" or r.startswith("trecho")] + revisar
     return c
 
 
@@ -409,12 +416,16 @@ def linha_csv_foco(reg):
         "tem_problema": p3["tem_problema"], "p3_problemas_identificados": j(p3["problemas_identificados"]),
         "p3_problema_principal": p3["problema_principal"], "p3_foi_resolvido_na_ligacao": p3["foi_resolvido_na_ligacao"],
         "p3_evidencias": " | ".join(f"{i['codigo']}: {i['evidencia']}" for i in p3["itens"]),
+        "p3_trechos": " || ".join(f"{i['codigo']}: {i.get('trecho', '')}" for i in p3["itens"] if i.get("trecho")),
+        "p3_trechos_status": " | ".join(f"{i['codigo']}: {i.get('trecho_status', '')}" for i in p3["itens"] if i.get("trecho_status")),
         "p3_outro_descricao": " | ".join(i["descricao"] for i in p3["itens"] if i["codigo"] == "P11"),
         "p5_teve_challenger": p5["teve_challenger"], "p5_codigos_challenger": j(p5["codigos_challenger"]),
         "p5_qualidade": p5["qualidade"], "p5_trouxe_dado": p5["trouxe_dado_concreto"],
         "p5_conectou_situacao": p5["conectou_a_situacao_do_cliente"], "p5_cliente_reagiu": p5["cliente_reagiu"],
         "p5_frase_vendedor": p5["frase_vendedor"], "p5_reacao_cliente": p5["reacao_cliente"],
         "p5_challenger_sem_dado": p5.get("challenger_sem_dado", "NAO"),
+        "p5_trecho_challenger": p5.get("trecho", "") if p5["teve_challenger"] == "SIM" else "",
+        "p5_trecho_status": p5.get("trecho_status", "") if p5["teve_challenger"] == "SIM" else "",
         "p1_desfecho_original": p1.get("desfecho_original", ""), "p2_tipo_original": c["P2"].get("tipo_original", ""),
         "revisar": "; ".join(c.get("revisar", [])),
         "tokens_entrada": reg["uso"].get("prompt_tokens", 0), "tokens_cache": reg["uso"].get("cached_tokens", 0),
@@ -422,13 +433,73 @@ def linha_csv_foco(reg):
     }
 
 
+def _palavras(t):
+    import unicodedata
+    t = unicodedata.normalize("NFKD", str(t or "")).encode("ascii", "ignore").decode().lower()
+    return re.findall(r"[a-z0-9]+", t)
+
+
+def _anonimizar(texto, nome_agente):
+    """Troca o nome do vendedor (do cadastro) por [VENDEDOR] e sequencias longas de digitos por [NUM]."""
+    nomes = {w for w in re.split(r"[^A-Za-zÀ-ÿ]+", str(nome_agente or "")) if len(w) >= 3}
+    for n in sorted(nomes, key=len, reverse=True):
+        texto = re.sub(rf"\b{re.escape(n)}\b", "[VENDEDOR]", texto, flags=re.I)
+    return re.sub(r"\d[\d .\-/]{5,}\d", "[NUM]", texto)
+
+
+def localizar_trecho(transcricao_compacta, ancora, nome_agente=""):
+    """Acha a fala que contem a ancora e devolve o trecho REAL (fala anterior + fala + seguinte).
+    Status: encontrado | aproximado (>=70% das palavras da ancora na mesma fala) | nao_encontrado | sem_ancora."""
+    alvo = _palavras(ancora)
+    if len(alvo) < 3:
+        return "", "sem_ancora"
+    turnos = [ln for ln in transcricao_compacta.splitlines() if ln.strip()]
+    frase = " ".join(alvo)
+    melhor, melhor_i = 0.0, -1
+    for i, ln in enumerate(turnos):
+        pal = _palavras(ln)
+        if frase in " ".join(pal):
+            melhor, melhor_i = 1.0, i
+            break
+        cobertura = sum(1 for w in set(alvo) if w in set(pal)) / len(set(alvo))
+        if cobertura > melhor:
+            melhor, melhor_i = cobertura, i
+    if melhor < 0.7:
+        return "", "nao_encontrado"
+    corte = lambda ln: ln if len(ln) <= 400 else ln[:400] + "..."
+    trecho = " / ".join(corte(turnos[j]) for j in range(max(0, melhor_i - 1), min(len(turnos), melhor_i + 2)))
+    return _anonimizar(trecho, nome_agente), ("encontrado" if melhor == 1.0 else "aproximado")
+
+
+def anexar_trechos(c, resp, transcricao_compacta, nome_agente):
+    """Guarda os trechos reais de Challenger e de cada problema; marca revisar se a ancora nao existe na transcricao."""
+    ch = resp.get("challenger") if isinstance(resp.get("challenger"), dict) else {}
+    if c["P5"]["teve_challenger"] == "SIM":
+        c["P5"]["trecho"], c["P5"]["trecho_status"] = localizar_trecho(transcricao_compacta, ch.get("ancora"), nome_agente)
+        if c["P5"]["trecho_status"] in ("nao_encontrado", "sem_ancora"):
+            c["revisar"].append("trecho do Challenger nao encontrado")
+    ancoras = {}
+    pr = resp.get("problemas") if isinstance(resp.get("problemas"), dict) else {}
+    for it in _lista_dicts(pr.get("lista")):
+        cod = (_codigos(it.get("codigo"), "P") or [""])[0]
+        ancoras.setdefault(cod, it.get("ancora"))
+    faltou = False
+    for item in c["P3"]["itens"]:
+        item["trecho"], item["trecho_status"] = localizar_trecho(transcricao_compacta, ancoras.get(item["codigo"]), nome_agente)
+        faltou |= item["trecho_status"] in ("nao_encontrado", "sem_ancora")
+    if faltou:
+        c["revisar"].append("trecho de problema nao encontrado")
+    return c
+
+
 def resposta_simulada_foco(transcricao):
     return ({"venda": {"evidencia": "cliente pede cotacao de 2 carros", "era_venda": "SIM", "tentativa_comercial": "SIM",
                        "desfecho": "interessou_nao_fechou", "tipo": "nova_venda"},
              "challenger": {"frase_vendedor": "", "reacao_cliente": "", **{f"CH{i}": "NAO" for i in range(1, 8)},
                             "trouxe_dado_concreto": "NAO", "conectou_a_situacao_do_cliente": "NAO", "cliente_reagiu": "NAO"},
-             "problemas": {"lista": [{"evidencia": "nao consegue entrar no portal", "codigo": "P1"},
-                                     {"evidencia": "boleto venceu sem chegar", "codigo": "2"}],
+             "problemas": {"lista": [{"evidencia": "nao consegue entrar no portal", "codigo": "P1",
+                                      "ancora": " ".join((transcricao.splitlines() or [""])[min(1, len(transcricao.splitlines()) - 1)].split()[1:9])},
+                                     {"evidencia": "boleto venceu sem chegar", "codigo": "2", "ancora": "frase que nao existe na ligacao"}],
                            "tem_problema": "SIM", "principal": "P1", "foi_resolvido_na_ligacao": "PARCIAL"}},
             {"prompt_tokens": len(SYSTEM_FOCO + transcricao) // 4, "completion_tokens": 250,
              "cached_tokens": len(SYSTEM_FOCO) // 4}, "")
@@ -884,7 +955,8 @@ def main():
             else:
                 reg = {**base, "fonte_classificacao": "simulado" if args.simular else "gpt", "modelo": MODELO,
                        "resposta_bruta": resp,
-                       "classificacao": normalizar_foco(resp) if MODO == "foco" else normalizar(resp, lig["direcao"]),
+                       "classificacao": (anexar_trechos(normalizar_foco(resp), resp, t, lig["nome_agente_1"])
+                                         if MODO == "foco" else normalizar(resp, lig["direcao"])),
                        "uso": uso, "erro": ""}
         with trava:
             with open(andamento, "a", encoding="utf-8") as f:

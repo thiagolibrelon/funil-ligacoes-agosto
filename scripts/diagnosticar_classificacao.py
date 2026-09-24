@@ -77,6 +77,10 @@ def main():
            Counter(f"{r['p5_trouxe_dado']} | {r['p5_conectou_situacao']} | {r['p5_cliente_reagiu']}" for r in ch))
     tabela("Codigos CH", Counter(c for r in ch for c in r["p5_codigos_challenger"].split("+")))
     tabela("Challenger x era_venda", Counter(f"venda={r['era_venda']}" for r in ch))
+    if "p5_trecho_status" in linhas[0]:
+        tabela("Trecho do Challenger (status)", Counter(r["p5_trecho_status"] or "(vazio)" for r in ch))
+        tabela("Trechos de problema (status por codigo)",
+               Counter(x.split(":")[1].strip() for r in com_prob for x in r["p3_trechos_status"].split("|") if ":" in x))
     if "p5_challenger_sem_dado" in linhas[0]:
         print(f"\nChallenger descartado por falta de dado concreto: {sum(r['p5_challenger_sem_dado'] == 'SIM' for r in gpt)}")
 
