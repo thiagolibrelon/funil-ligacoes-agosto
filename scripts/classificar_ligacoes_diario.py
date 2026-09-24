@@ -53,6 +53,7 @@ csv.field_size_limit(10_000_000)
 
 MODELO = "gpt-4o-mini"
 MODO = "foco"  # "foco" = C12 (venda, Challenger, problemas) | "completo" = C7 (11 prompts)
+CHALLENGER_EXIGE_DADO = True  # Challenger so conta se o vendedor trouxe dado concreto (decisao de 24/09/2026)
 URL_PADRAO = "https://llm-gate-np.localiza.dev/llm-gate/v2/chat/completions"
 MAX_TOKENS_SAIDA = 1500
 WORKERS = 4
@@ -226,7 +227,8 @@ desfecho:
 - fechou_renovacao = renovou ou prorrogou contrato existente na ligacao
 - fechou_upsell = cliente ativo adicionou carro ou produto na ligacao
 - interessou_nao_fechou = cliente tem demanda real (cotacao, reserva, pedido), mas nao concluiu na ligacao
-- nao_era_venda = nenhuma locacao em jogo (suporte, cobranca, recado, relacionamento sem demanda)
+- nao_era_venda = nenhuma locacao em jogo (suporte, cobranca, recado, contato sem demanda)
+Use EXATAMENTE um destes 5 valores no desfecho — nunca "nenhum" nem uma frase. Se era_venda=NAO, desfecho=nao_era_venda.
 Casos de fronteira:
 - cliente quer locar mas depende de credito, aprovacao ou reserva pendente = interessou_nao_fechou
 - ligacao so de cobranca/pagamento, sem demanda de locacao = nao_era_venda
@@ -236,15 +238,18 @@ tipo (assunto principal da ligacao):
 nova_venda = prospect ou cliente sem contrato buscando locacao | renovacao = renovar/prorrogar contrato |
 upsell = mais carros ou produto para cliente ativo | retencao = cliente inativo ou em risco, vendedor tenta retomar |
 suporte_operacional = portal, acesso, reserva, cadastro, condutor | pos_venda_sinistro = acidente, avaria |
-pos_venda_manutencao = acompanhamento de cliente ativo (visita de rotina, manutencao, satisfacao) |
+pos_venda_manutencao = carro em manutencao ou acompanhamento de uma locacao em andamento |
+relacionamento_sem_demanda = visita, sondagem ou contato de rotina com cliente ou prospect, sem demanda e sem problema |
 cobranca = fatura, boleto, pagamento | onboarding = boas-vindas/ativacao de cliente recem-cadastrado |
 duvida_contrato = duvida sobre regras, tarifa ou condicoes | misto = dois assuntos com peso parecido |
 sem_conteudo = sem conversa util (caixa postal, recado, transferencia)
+Use EXATAMENTE um valor desta lista no tipo.
 
 # 2. CHALLENGER
 Challenger = o vendedor ENSINA algo que o cliente nao sabia, ADAPTA a situacao dele e TOMA O CONTROLE da conversa, sem o
-cliente ter pedido. NAO e Challenger: oferecer produto, responder duvida, informar preco ou regra quando perguntado,
-"se precisar me chama", ser simpatico. Na duvida, NAO.
+cliente ter pedido, e SEMPRE com um DADO CONCRETO (numero, valor, prazo ou regra). Sem dado concreto NAO e Challenger.
+NAO e Challenger: oferecer produto, responder duvida, informar preco ou regra quando perguntado, "se precisar me chama",
+ser simpatico, conversar sobre frota propria sem mostrar custo ou dado. Na duvida, NAO.
 Marque SIM/NAO em cada tipo:
 CH1 custo oculto revelado — ex: "se devolver antes do prazo cai em diaria e sai o dobro"
 CH2 ROI calculado — ex: "o eletrico custa X a mais, mas economiza Y de combustivel"
@@ -253,8 +258,10 @@ CH4 alternativa/concorrente superado com dado — ex: "frota propria tem IPVA, s
 CH5 dor revelada conectada a produto — ex: "voce falou em multa de condutor errado; a telemetria resolve isso"
 CH6 antecipacao de problema — ex: "seu contrato vence em 2 semanas; ja deixo renovado para nao cair em diaria"
 CH7 descoberta de necessidade nao declarada — ex: vendedor pergunta e descobre frota propria ou caminhoes que o cliente nao citou
-Regua (so se houve Challenger): trouxe_dado_concreto (numero, prazo, regra, valor) | conectou_a_situacao_do_cliente |
-cliente_reagiu (aceitou, perguntou mais ou disse que vai avaliar)
+Regua (so se houve Challenger): trouxe_dado_concreto (numero, prazo, regra, valor) |
+conectou_a_situacao_do_cliente = SIM so se usou algo que o proprio cliente disse NESTA ligacao |
+cliente_reagiu = SIM so se o cliente respondeu ao que foi ensinado (aceitou, perguntou mais, disse que vai avaliar);
+"ok", "ta bom", "entendi" = NAO
 
 # 3. PROBLEMAS
 Problema = algo DEU ERRADO ou esta IMPEDINDO o cliente. Pedido de rotina ou duvida sem erro = nao e problema.
@@ -273,6 +280,61 @@ Responda SOMENTE um objeto JSON valido, sem texto fora dele, neste formato e nes
 Use sempre os codigos (P1..., CH1...), nunca o nome por extenso. Lista vazia [] se nao houve problema."""
 
 TIPOS_VENDA = ("nova_venda", "renovacao", "upsell")
+DESFECHOS = ("fechou_novo", "fechou_renovacao", "fechou_upsell", "interessou_nao_fechou", "nao_era_venda")
+TIPOS = ("nova_venda", "renovacao", "upsell", "retencao", "suporte_operacional", "pos_venda_sinistro",
+         "pos_venda_manutencao", "relacionamento_sem_demanda", "cobranca", "onboarding", "duvida_contrato", "misto",
+         "sem_conteudo")
+VAZIOS = ("", "nenhum", "nenhuma", "na", "none", "null")
+
+
+def _chave(v):
+    """'Não era venda' / 'relacionamento sem demanda' -> 'nao_era_venda' / 'relacionamento_sem_demanda'."""
+    import unicodedata
+    t = unicodedata.normalize("NFKD", str(v or "")).encode("ascii", "ignore").decode().lower().strip()
+    return re.sub(r"[^a-z0-9]+", "_", t).strip("_")
+
+
+def aplicar_regras_foco(c):
+    """Padroniza desfecho/tipo, aplica a regra do Challenger e refaz a lista de 'revisar'. Pode rodar mais de uma vez."""
+    p1, p2, p5 = c["P1"], c["P2"], c["P5"]
+    revisar = []
+    era = p1["era_venda"]
+
+    d = _chave(p1["desfecho"])
+    if d not in DESFECHOS:
+        if era == "NAO" or d in VAZIOS:
+            d = "nao_era_venda" if era == "NAO" else "interessou_nao_fechou"
+        else:
+            p1["desfecho_original"] = p1["desfecho"]
+            d = "interessou_nao_fechou"
+            revisar.append("desfecho fora da lista")
+    p1["desfecho"] = d
+    if p1.get("desfecho_original") and "desfecho fora da lista" not in revisar:
+        revisar.append("desfecho fora da lista")  # mantem a marcacao quando as regras rodam de novo
+    if (era == "NAO") != (d == "nao_era_venda"):
+        revisar.append("era_venda x desfecho")
+
+    t = _chave(p2["tipo"])
+    if t in ("relacionamento", "relacionamento_sem_demanda_comercial"):
+        t = "relacionamento_sem_demanda"
+    if t in VAZIOS:
+        t = "sem_conteudo" if era == "NAO" else "misto"
+    if t not in TIPOS:
+        p2["tipo_original"] = p2.get("tipo_original") or p2["tipo"]
+        revisar.append("tipo fora da lista")
+    p2["tipo"] = t
+    if era == "NAO" and t in TIPOS_VENDA:
+        revisar.append("tipo de venda sem venda")
+
+    if CHALLENGER_EXIGE_DADO and p5["teve_challenger"] == "SIM" and p5.get("trouxe_dado_concreto") != "SIM":
+        p5["challenger_sem_dado"] = "SIM"  # guardado para auditoria: o modelo marcou, a regra descartou
+        p5.update(teve_challenger="NAO", codigos_challenger=[], qualidade="nenhum")
+    if p5["teve_challenger"] == "SIM":
+        pontos = sum(p5.get(k) == "SIM" for k in ("trouxe_dado_concreto", "conectou_a_situacao_do_cliente", "cliente_reagiu"))
+        p5["qualidade"] = "alta" if pontos == 3 else "media" if pontos == 2 else "baixa"
+
+    c["revisar"] = [r for r in c.get("revisar", []) if r == "tem_problema sem codigo"] + revisar
+    return c
 
 
 def _sim(v):
@@ -288,10 +350,6 @@ def normalizar_foco(resp):
     era = _sim(v.get("era_venda"))
     desfecho = _txt(v.get("desfecho"))
     tipo = _txt(v.get("tipo"))
-    if (era == "NAO") != (desfecho == "nao_era_venda"):
-        revisar.append("era_venda x desfecho")
-    if era == "NAO" and tipo in TIPOS_VENDA:
-        revisar.append("tipo de venda sem venda")
 
     codigos_ch = [f"CH{i}" for i in range(1, 8) if _sim(ch.get(f"CH{i}")) == "SIM"]
     frase = _txt(ch.get("frase_vendedor"))
@@ -315,7 +373,7 @@ def normalizar_foco(resp):
     if principal not in codigos_pr:
         principal = codigos_pr[0] if codigos_pr else "nenhum"
 
-    return {
+    return aplicar_regras_foco({
         "P1": {"era_venda": era, "desfecho": desfecho, "tentativa_comercial": _sim(v.get("tentativa_comercial")),
                "evidencia_venda": _txt(v.get("evidencia"))},
         "P2": {"tipo": tipo},
@@ -325,7 +383,7 @@ def normalizar_foco(resp):
         "P5": {"teve_challenger": teve, "codigos_challenger": codigos_ch if teve == "SIM" else [], "qualidade": qualidade,
                **regua, "frase_vendedor": frase if teve == "SIM" else "", "reacao_cliente": _txt(ch.get("reacao_cliente")) if teve == "SIM" else ""},
         "revisar": revisar,
-    }
+    })
 
 
 def resultado_sem_conteudo_foco():
@@ -356,6 +414,8 @@ def linha_csv_foco(reg):
         "p5_qualidade": p5["qualidade"], "p5_trouxe_dado": p5["trouxe_dado_concreto"],
         "p5_conectou_situacao": p5["conectou_a_situacao_do_cliente"], "p5_cliente_reagiu": p5["cliente_reagiu"],
         "p5_frase_vendedor": p5["frase_vendedor"], "p5_reacao_cliente": p5["reacao_cliente"],
+        "p5_challenger_sem_dado": p5.get("challenger_sem_dado", "NAO"),
+        "p1_desfecho_original": p1.get("desfecho_original", ""), "p2_tipo_original": c["P2"].get("tipo_original", ""),
         "revisar": "; ".join(c.get("revisar", [])),
         "tokens_entrada": reg["uso"].get("prompt_tokens", 0), "tokens_cache": reg["uso"].get("cached_tokens", 0),
         "tokens_saida": reg["uso"].get("completion_tokens", 0), "erro": reg.get("erro", ""),
@@ -443,8 +503,13 @@ def pedir_chave():
     return chave
 
 
+INTERATIVO = True  # False quando --entrada e --saida vem pela linha de comando (agendamento): sem janela no fim
+
+
 def avisar(titulo, texto, erro=False):
     print(texto)
+    if not INTERATIVO:
+        return
     try:
         from tkinter import messagebox
         raiz = _tk()
@@ -751,6 +816,8 @@ def main():
     ap.add_argument("--silencioso", action="store_true", help="mostra so 1 linha a cada 25 ligacoes")
     args = ap.parse_args()
 
+    global INTERATIVO
+    INTERATIVO = not (args.entrada and args.saida)
     entrada = args.entrada or escolher_arquivo()
     if not entrada:
         sys.exit("Nenhum arquivo escolhido.")
@@ -816,6 +883,7 @@ def main():
                        "uso": {}, "erro": erro}
             else:
                 reg = {**base, "fonte_classificacao": "simulado" if args.simular else "gpt", "modelo": MODELO,
+                       "resposta_bruta": resp,
                        "classificacao": normalizar_foco(resp) if MODO == "foco" else normalizar(resp, lig["direcao"]),
                        "uso": uso, "erro": ""}
         with trava:
@@ -840,6 +908,10 @@ def main():
         list(ex.map(processar, pendentes))
 
     registros = [feitos[l["cd_segmento"]] for l in ligacoes if l["cd_segmento"] in feitos]
+    if MODO == "foco":  # regras novas valem tambem para o que ja estava classificado (sem chamar a API de novo)
+        for r in registros:
+            if r["fonte_classificacao"] in ("gpt", "simulado") and "venda" not in r["classificacao"]:
+                r["classificacao"] = aplicar_regras_foco(r["classificacao"])
     tok = {k: sum(r["uso"].get(k, 0) for r in registros) for k in ("prompt_tokens", "cached_tokens", "completion_tokens")}
     pin, pcache, pout = PRECOS.get(MODELO, (0, 0, 0))
     custo = ((tok["prompt_tokens"] - tok["cached_tokens"]) * pin + tok["cached_tokens"] * pcache

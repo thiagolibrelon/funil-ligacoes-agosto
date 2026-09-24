@@ -15,7 +15,8 @@ from pathlib import Path
 
 DESFECHOS = {"fechou_novo", "fechou_renovacao", "fechou_upsell", "interessou_nao_fechou", "nao_era_venda"}
 TIPOS = {"nova_venda", "renovacao", "upsell", "retencao", "suporte_operacional", "pos_venda_sinistro",
-         "pos_venda_manutencao", "cobranca", "onboarding", "duvida_contrato", "misto", "sem_conteudo"}
+         "pos_venda_manutencao", "relacionamento_sem_demanda", "cobranca", "onboarding", "duvida_contrato", "misto",
+         "sem_conteudo"}
 
 
 def escolher():
@@ -76,6 +77,8 @@ def main():
            Counter(f"{r['p5_trouxe_dado']} | {r['p5_conectou_situacao']} | {r['p5_cliente_reagiu']}" for r in ch))
     tabela("Codigos CH", Counter(c for r in ch for c in r["p5_codigos_challenger"].split("+")))
     tabela("Challenger x era_venda", Counter(f"venda={r['era_venda']}" for r in ch))
+    if "p5_challenger_sem_dado" in linhas[0]:
+        print(f"\nChallenger descartado por falta de dado concreto: {sum(r['p5_challenger_sem_dado'] == 'SIM' for r in gpt)}")
 
 
 if __name__ == "__main__":
