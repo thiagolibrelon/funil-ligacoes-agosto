@@ -390,6 +390,8 @@ def configs_base():
          "transcricao": "compacta", "max_tokens": 1500},
         {"id": "C12", "descricao": "mini + foco: venda, Challenger, problemas", "modelo": "gpt-4o-mini", "modo": "foco",
          "transcricao": "compacta", "max_tokens": 1500},
+        {"id": "C13", "descricao": "gpt-5.4-mini + foco (C12)", "modelo": "gpt-5.4-mini", "modo": "foco",
+         "transcricao": "compacta", "max_tokens": 1500},
     ]
 
 

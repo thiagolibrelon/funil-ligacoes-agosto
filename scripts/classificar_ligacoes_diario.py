@@ -55,7 +55,8 @@ import requests
 
 csv.field_size_limit(10_000_000)
 
-MODELO = "gpt-4o-mini"
+MODELO = "gpt-5.4-mini"   # troque para "gpt-4o-mini" se precisar voltar
+REASONING_EFFORT = "minimal"  # so para modelos de raciocinio (gpt-5.x): raciocinio e cobrado como SAIDA
 MODO = "foco"  # "foco" = C12 (venda, Challenger, problemas) | "completo" = C7 (11 prompts)
 CHALLENGER_EXIGE_DADO = True  # Challenger so conta se o vendedor trouxe dado concreto (decisao de 24/09/2026)
 URL_PADRAO = "https://llm-gate-np.localiza.dev/llm-gate/v2/chat/completions"
@@ -68,7 +69,8 @@ MIN_CHARS_TRANSCRICAO = 40    # abaixo disso a linha e ignorada (transcricao vaz
 TIME_ALVO = "LL_GRVIN"        # usado so se o arquivo tiver a coluna time_agente_1; "" = todos os times
 FUSO_H = -3
 # precos publicos OpenAI por milhao de tokens (entrada, entrada em cache, saida) — so para a estimativa
-PRECOS = {"gpt-4o-mini": (0.15, 0.075, 0.60), "gpt-4o": (2.50, 1.25, 10.00)}
+PRECOS = {"gpt-4o-mini": (0.15, 0.075, 0.60), "gpt-4o": (2.50, 1.25, 10.00),
+          "gpt-5.4-mini": (0.75, 0.075, 4.50)}  # 5.4-mini: entrada/saida informadas pelo time; cache = estimativa (10%)
 
 PESOS_B = {"B1": 2, "B2": 1, "B3": 2, "B4": 2, "B5": 2, "B6": 3, "B7": 1, "B8": 1, "B9": 1, "B10": 3}
 
@@ -220,8 +222,8 @@ SYSTEM_FOCO = f"""Voce e analista de ligacoes comerciais B2B de locacao de frota
 {CONTEXTO}
 
 Analise a ligacao enviada pelo usuario e responda 3 perguntas. Nao invente nada que nao esteja na transcricao.
-Em cada bloco, preencha PRIMEIRO a evidencia (resumo curto do que foi dito, sem nomes de pessoas ou empresas) e SO DEPOIS
-o veredito. Se nao houver evidencia, o veredito e NAO/nenhum.
+Em cada bloco, preencha PRIMEIRO a "ancora" (COPIA LITERAL de 6 a 12 palavras seguidas da transcricao que provam o
+veredito) e SO DEPOIS o veredito. Se nao houver ancora, o veredito e NAO/nenhum.
 
 # 1. VENDA
 era_venda = SIM quando ha locacao, contrato ou produto em jogo COM INTERESSE DO CLIENTE: cotacao, reserva, pedido, data,
@@ -274,17 +276,15 @@ So conte problema que e tema relevante da ligacao, nao mencao de passagem.
 """ + "\n".join(f"{c} {n} — {d}" for c, n, d in PROBLEMAS) + """
 
 Responda SOMENTE um objeto JSON valido, sem texto fora dele, neste formato e nesta ordem:
-{"venda": {"evidencia": "<ate 15 palavras>", "era_venda": "SIM|NAO", "tentativa_comercial": "SIM|NAO",
-  "desfecho": "...", "tipo": "..."},
- "challenger": {"frase_vendedor": "<o que o vendedor ensinou, ate 20 palavras, ou vazio>", "reacao_cliente": "<ate 10 palavras ou vazio>",
-  "ancora": "<COPIE LITERALMENTE 6 a 12 palavras seguidas da fala do vendedor em que ele ensinou, ou vazio>",
-  "CH1": "SIM|NAO", "CH2": "SIM|NAO", "CH3": "SIM|NAO", "CH4": "SIM|NAO", "CH5": "SIM|NAO", "CH6": "SIM|NAO", "CH7": "SIM|NAO",
+{"venda": {"ancora": "<copia literal>", "era_venda": "SIM|NAO", "tentativa_comercial": "SIM|NAO", "desfecho": "...", "tipo": "..."},
+ "challenger": {"ancora": "<copia literal da fala do vendedor ensinando, ou vazio>", "CH1": "SIM|NAO", "CH2": "SIM|NAO",
+  "CH3": "SIM|NAO", "CH4": "SIM|NAO", "CH5": "SIM|NAO", "CH6": "SIM|NAO", "CH7": "SIM|NAO",
   "trouxe_dado_concreto": "SIM|NAO", "conectou_a_situacao_do_cliente": "SIM|NAO", "cliente_reagiu": "SIM|NAO"},
- "problemas": {"lista": [{"evidencia": "<ate 12 palavras>", "ancora": "<COPIE LITERALMENTE 6 a 12 palavras seguidas da fala em que o problema aparece>",
-  "codigo": "P..", "descricao": "<so para P11>"}],
+ "problemas": {"lista": [{"ancora": "<copia literal>", "codigo": "P..", "descricao": "<so para P11, ate 8 palavras>"}],
   "tem_problema": "SIM|NAO", "principal": "P..|nenhum", "foi_resolvido_na_ligacao": "SIM|NAO|PARCIAL|nenhum"}}
 Use sempre os codigos (P1..., CH1...), nunca o nome por extenso. Lista vazia [] se nao houve problema.
-"ancora" e uma COPIA EXATA de palavras da transcricao (sem corrigir, sem resumir), usada para localizar o trecho."""
+"ancora" = COPIA EXATA de 6 a 12 palavras SEGUIDAS de UMA fala da transcricao, como estao escritas (sem corrigir, sem resumir,
+sem juntar falas diferentes). E usada para localizar o trecho na ligacao."""
 
 TIPOS_VENDA = ("nova_venda", "renovacao", "upsell")
 DESFECHOS = ("fechou_novo", "fechou_renovacao", "fechou_upsell", "interessou_nao_fechou", "nao_era_venda")
@@ -359,7 +359,7 @@ def normalizar_foco(resp):
     tipo = _txt(v.get("tipo"))
 
     codigos_ch = [f"CH{i}" for i in range(1, 8) if _sim(ch.get(f"CH{i}")) == "SIM"]
-    frase = _txt(ch.get("frase_vendedor"))
+    frase = _txt(ch.get("ancora") or ch.get("frase_vendedor"))
     teve = "SIM" if codigos_ch and frase else "NAO"
     regua = {k: _sim(ch.get(k)) for k in ("trouxe_dado_concreto", "conectou_a_situacao_do_cliente", "cliente_reagiu")}
     pontos = sum(x == "SIM" for x in regua.values())
@@ -370,7 +370,7 @@ def normalizar_foco(resp):
         cod = (_codigos(it.get("codigo"), "P") or [""])[0]
         if cod in CODIGOS_PROBLEMA and cod not in vistos:
             vistos.add(cod)
-            itens.append({"codigo": cod, "evidencia": _txt(it.get("evidencia")),
+            itens.append({"codigo": cod, "evidencia": _txt(it.get("ancora") or it.get("evidencia")),
                           "descricao": _txt(it.get("descricao")) if cod == "P11" else ""})
     codigos_pr = [i["codigo"] for i in itens]
     tem = "SIM" if codigos_pr else "NAO"
@@ -382,7 +382,7 @@ def normalizar_foco(resp):
 
     return aplicar_regras_foco({
         "P1": {"era_venda": era, "desfecho": desfecho, "tentativa_comercial": _sim(v.get("tentativa_comercial")),
-               "evidencia_venda": _txt(v.get("evidencia"))},
+               "evidencia_venda": _txt(v.get("ancora") or v.get("evidencia"))},
         "P2": {"tipo": tipo},
         "P3": {"tem_problema": tem, "problemas_identificados": codigos_pr, "problema_principal": principal,
                "foi_resolvido_na_ligacao": _txt(pr.get("foi_resolvido_na_ligacao")).upper() if codigos_pr else "nenhum",
@@ -413,6 +413,7 @@ def linha_csv_foco(reg):
         "fonte_classificacao": reg["fonte_classificacao"], "modelo": reg["modelo"],
         "era_venda": p1["era_venda"], "p1_desfecho": p1["desfecho"], "p2_tipo": c["P2"]["tipo"],
         "p1_tentativa_comercial": p1["tentativa_comercial"], "evidencia_venda": p1["evidencia_venda"],
+        "p1_trecho_venda": p1.get("trecho", ""),
         "tem_problema": p3["tem_problema"], "p3_problemas_identificados": j(p3["problemas_identificados"]),
         "p3_problema_principal": p3["problema_principal"], "p3_foi_resolvido_na_ligacao": p3["foi_resolvido_na_ligacao"],
         "p3_evidencias": " | ".join(f"{i['codigo']}: {i['evidencia']}" for i in p3["itens"]),
@@ -429,7 +430,9 @@ def linha_csv_foco(reg):
         "p1_desfecho_original": p1.get("desfecho_original", ""), "p2_tipo_original": c["P2"].get("tipo_original", ""),
         "revisar": "; ".join(c.get("revisar", [])),
         "tokens_entrada": reg["uso"].get("prompt_tokens", 0), "tokens_cache": reg["uso"].get("cached_tokens", 0),
-        "tokens_saida": reg["uso"].get("completion_tokens", 0), "erro": reg.get("erro", ""),
+        "tokens_saida": reg["uso"].get("completion_tokens", 0), "tokens_raciocinio": reg["uso"].get("reasoning_tokens", 0),
+        "custo_llm_gate": reg["uso"].get("custo_llm_gate") if reg["uso"].get("custo_llm_gate") is not None else "",
+        "erro": reg.get("erro", ""),
     }
 
 
@@ -455,16 +458,23 @@ def localizar_trecho(transcricao_compacta, ancora, nome_agente=""):
         return "", "sem_ancora"
     turnos = [ln for ln in transcricao_compacta.splitlines() if ln.strip()]
     frase = " ".join(alvo)
+    unicas = set(alvo)
     melhor, melhor_i = 0.0, -1
-    for i, ln in enumerate(turnos):
-        pal = _palavras(ln)
-        if frase in " ".join(pal):
-            melhor, melhor_i = 1.0, i
+    for i in range(len(turnos)):
+        # a fala sozinha e a fala + a seguinte (a ancora pode atravessar a quebra do STT)
+        for janela in (turnos[i], turnos[i] + " " + turnos[i + 1] if i + 1 < len(turnos) else None):
+            if janela is None:
+                continue
+            pal = _palavras(janela)
+            if frase in " ".join(pal):
+                melhor, melhor_i = 1.0, i
+                break
+            cobertura = len(unicas & set(pal)) / len(unicas)
+            if cobertura > melhor:
+                melhor, melhor_i = cobertura, i
+        if melhor == 1.0:
             break
-        cobertura = sum(1 for w in set(alvo) if w in set(pal)) / len(set(alvo))
-        if cobertura > melhor:
-            melhor, melhor_i = cobertura, i
-    if melhor < 0.7:
+    if melhor < 0.65:
         return "", "nao_encontrado"
     corte = lambda ln: ln if len(ln) <= 400 else ln[:400] + "..."
     trecho = " / ".join(corte(turnos[j]) for j in range(max(0, melhor_i - 1), min(len(turnos), melhor_i + 2)))
@@ -474,6 +484,8 @@ def localizar_trecho(transcricao_compacta, ancora, nome_agente=""):
 def anexar_trechos(c, resp, transcricao_compacta, nome_agente):
     """Guarda os trechos reais de Challenger e de cada problema; marca revisar se a ancora nao existe na transcricao."""
     ch = resp.get("challenger") if isinstance(resp.get("challenger"), dict) else {}
+    v = resp.get("venda") if isinstance(resp.get("venda"), dict) else {}
+    c["P1"]["trecho"], c["P1"]["trecho_status"] = localizar_trecho(transcricao_compacta, v.get("ancora"), nome_agente)
     if c["P5"]["teve_challenger"] == "SIM":
         c["P5"]["trecho"], c["P5"]["trecho_status"] = localizar_trecho(transcricao_compacta, ch.get("ancora"), nome_agente)
         if c["P5"]["trecho_status"] in ("nao_encontrado", "sem_ancora"):
@@ -674,6 +686,8 @@ def montar_payload(transcricao):
          "response_format": {"type": "json_object"}}
     if MODELO.startswith(("gpt-5", "o1", "o3", "o4")):
         p["max_completion_tokens"] = MAX_TOKENS_SAIDA * 4
+        if REASONING_EFFORT:
+            p["reasoning_effort"] = REASONING_EFFORT
     else:
         p["temperature"] = 0
         p["max_tokens"] = MAX_TOKENS_SAIDA
@@ -691,15 +705,24 @@ def chamar(url, headers, transcricao):
             if r.ok:
                 j = r.json()
                 u = j.get("usage") or {}
+                custo_gate = ((j.get("cost") or {}).get("token") or {}).get("total")
                 uso = {"prompt_tokens": u.get("prompt_tokens") or 0,
-                       "completion_tokens": u.get("completion_tokens") or 0,
-                       "cached_tokens": (u.get("prompt_tokens_details") or {}).get("cached_tokens") or 0}
+                       "completion_tokens": u.get("completion_tokens") or 0,  # inclui o raciocinio
+                       "cached_tokens": (u.get("prompt_tokens_details") or {}).get("cached_tokens") or 0,
+                       "reasoning_tokens": (u.get("completion_tokens_details") or {}).get("reasoning_tokens") or 0,
+                       "custo_llm_gate": custo_gate}
                 try:
                     return json.loads(j["choices"][0]["message"]["content"]), uso, ""
                 except (json.JSONDecodeError, KeyError, IndexError):
                     erro = f"resposta nao e JSON valido (finish_reason={j['choices'][0].get('finish_reason')})"
             else:
                 erro = f"HTTP {r.status_code}: {r.text[:200]}"
+                if r.status_code == 400 and "reasoning_effort" in payload and "reasoning" in r.text.lower():
+                    # valor nao aceito por este modelo: tenta "low" e, se ainda falhar, sem o parametro
+                    payload["reasoning_effort"] = "low" if payload["reasoning_effort"] == "minimal" else None
+                    if payload["reasoning_effort"] is None:
+                        payload.pop("reasoning_effort")
+                    continue
                 if r.status_code in (400, 401, 403, 404):
                     break
         except Exception as e:
